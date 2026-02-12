@@ -13,6 +13,8 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSelectModule } from '@angular/material/select';
 import { environment } from '../environments/environment'
 import { ServiceWorkerModule } from '@angular/service-worker';
 
@@ -37,6 +39,8 @@ import { ServiceWorkerModule } from '@angular/service-worker';
     MatDividerModule,
     MatIconModule,
     MatInputModule,
+    MatSnackBarModule,
+    MatSelectModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
       // Register the ServiceWorker as soon as the application is stable

@@ -1,7 +1,8 @@
 <div class="container-fluid">
   <div class="row text-center my-5">
     <h1>
-      <strong>TiMe!</strong></h1>
+      <strong>TiMe!</strong>
+    </h1>
     <div class="col">
       <strong>TiMe!</strong> Is a simple tool to make a timeline of
       <strong>your</strong> most important <strong>life</strong> events: job
@@ -11,7 +12,20 @@
   </div>
   <div class="row text-center justify-content-center mb-5">
     <div class="scroll-container" [style.height]="altezza + 'px'">
-      <div #timeline id="timesheet"></div>
+      <div #timeline id="timesheet" class="timesheet color-scheme-default" *ngIf="years.length > 0">
+        <div class="scale">
+          <section *ngFor="let year of years">{{ year }}</section>
+        </div>
+        <ul class="data">
+          <li *ngFor="let bubble of bubbles">
+            <span [style.margin-left.px]="bubble.marginLeft" [style.width.px]="bubble.width" [class]="bubble.class"
+              [attr.data-duration]="bubble.duration">
+              <span class="date">{{ bubble.dateLabel }}</span>
+              <span class="label">{{ bubble.label }}</span>
+            </span>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
   <div *ngIf="message" class="row text-center mb-5">
@@ -44,13 +58,21 @@
         <div class="col">
           <mat-form-field>
             <mat-label for="label">Label</mat-label>
-            <input
-              id="label"
-              matInput
-              type="text"
-              formControlName="label"
-              placeholder="Write a description, a title, a job..."
-            />
+            <input id="label" matInput type="text" formControlName="label"
+              placeholder="Write a description, a title, a job..." />
+          </mat-form-field>
+        </div>
+
+        <div class="col">
+          <mat-form-field>
+            <mat-label for="category">Category</mat-label>
+            <mat-select formControlName="category">
+              <mat-option value="default">Default</mat-option>
+              <mat-option value="lorem">Green</mat-option>
+              <mat-option value="ipsum">Blue</mat-option>
+              <mat-option value="dolor">Yellow</mat-option>
+              <mat-option value="sit">Purple</mat-option>
+            </mat-select>
           </mat-form-field>
         </div>
       </div>
@@ -61,8 +83,12 @@
           </button>
         </div>
         <div *ngIf="data.length && data.length > 0" class="col">
-          <button type="button" class="btn btn-outline-secondary btn-lg">
+          <button type="button" class="btn btn-outline-secondary btn-lg" (click)="saveAsImage()">
             <a #downloadLink>Save Timeline as image</a>
+          </button>
+
+          <button type="button" class="btn btn-primary btn-lg ms-2" (click)="onCopyLink()">
+            Copy Share Link
           </button>
         </div>
       </div>
@@ -75,27 +101,17 @@
       <div class="row justify-content-between">
         <div class="col">
           <strong>Line {{ index }}</strong> <br />
-          <span
-            >Start: {{ line[0] }} <br />
-            End: {{ line[1] }} <br />
-            Label: {{ line[2] }} <br />
-            Category: {{ line[3] }}</span
-          >
+          <span>Start: {{ line.start }} <br />
+            End: {{ line.end }} <br />
+            Label: {{ line.label }} <br />
+            Category: {{ line.category }}</span>
         </div>
-        <div class="col-3 text-right">
-          <button
-            type="button"
-            class="btn btn-outline-secondary"
-            (click)="editLine(index)"
-          >
+        <div class="col-3 text-end">
+          <button type="button" class="btn btn-outline-secondary" (click)="editLine(index)">
             <mat-icon>edit</mat-icon>
           </button>
 
-          <button
-            type="button"
-            class="btn btn-outline-secondary"
-            (click)="deleteLine(index)"
-          >
+          <button type="button" class="btn btn-outline-secondary" (click)="deleteLine(index)">
             <mat-icon>delete_outline</mat-icon>
           </button>
         </div>
@@ -106,6 +122,7 @@
 
   <div class="fixed-bottom text-center bg-light">
     This is a work in progress project. <br>
-    For any feedback write me: <strong> <a href="mailto:andrea.galliani.29@gmail.com?subject=TIMELINE%20ME%20FEEDBACK">here</a> </strong> </div>
+    For any feedback write me: <strong> <a
+        href="mailto:andrea.galliani.29@gmail.com?subject=TIMELINE%20ME%20FEEDBACK">here</a> </strong> </div>
 
 </div>
