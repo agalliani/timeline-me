@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { toPng } from "html-to-image";
 import { TimelineItem } from "@/types/timeline";
 import { TimelineDisplay } from "@/components/timeline-display";
+import { TimelineVertical } from "@/components/timeline-vertical";
 // import { TimelineForm } from "@/components/timeline-form"; // Moved to Modal
 import { TimelineModal } from "@/components/timeline-modal";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ export function TimelineApp() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [data, setData] = useState<TimelineItem[]>([]);
+    const [viewMode, setViewMode] = useState<'vertical' | 'horizontal'>('vertical');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEventIndex, setSelectedEventIndex] = useState<number | null>(null);
     const timelineRef = useRef<HTMLDivElement>(null);
@@ -167,10 +169,31 @@ export function TimelineApp() {
 
             {/* Visualization and Controls */}
             <div className="space-y-4">
-                <div className="flex justify-between items-center bg-card border-border/50 p-4 rounded-lg border shadow-sm">
-                    <Button onClick={handleAdd} className="gap-2">
-                        <Plus className="h-4 w-4" /> Add Event
-                    </Button>
+                <div className="flex justify-between items-center bg-card border-border/50 p-4 rounded-lg border shadow-sm flex-wrap gap-4">
+                    <div className="flex items-center gap-2">
+                        <Button onClick={handleAdd} className="gap-2">
+                            <Plus className="h-4 w-4" /> Add Event
+                        </Button>
+                    </div>
+
+                    <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg">
+                        <Button
+                            variant={viewMode === 'vertical' ? 'default' : 'ghost'}
+                            size="sm"
+                            onClick={() => setViewMode('vertical')}
+                            className="h-8"
+                        >
+                            Vertical
+                        </Button>
+                        <Button
+                            variant={viewMode === 'horizontal' ? 'default' : 'ghost'}
+                            size="sm"
+                            onClick={() => setViewMode('horizontal')}
+                            className="h-8"
+                        >
+                            Horizontal
+                        </Button>
+                    </div>
 
                     <div className="flex gap-2">
                         <Button variant="outline" size="sm" onClick={handleSaveImage} disabled={data.length === 0}>
@@ -182,15 +205,24 @@ export function TimelineApp() {
                     </div>
                 </div>
 
-                {/* TimelineDisplay handles its own styling and scrolling. We attach ref directly. */}
-                {/* @ts-ignore: onEdit not yet in TimelineDisplay props, fixing next */}
-                <TimelineDisplay
-                    ref={timelineRef}
-                    data={data}
-                    minYear={data.length > 0 ? undefined : 2020}
-                    maxYear={data.length > 0 ? undefined : 2026}
-                    onEdit={handleEdit}
-                />
+                {/* Timeline rendering based on viewMode */}
+
+                {viewMode === 'vertical' ? (
+                    <div ref={timelineRef} className="bg-background p-4 rounded-lg">
+                        <TimelineVertical
+                            data={data}
+                            onEdit={handleEdit}
+                        />
+                    </div>
+                ) : (
+                    <TimelineDisplay
+                        ref={timelineRef}
+                        data={data}
+                        minYear={data.length > 0 ? undefined : 2020}
+                        maxYear={data.length > 0 ? undefined : 2026}
+                        onEdit={handleEdit}
+                    />
+                )}
             </div>
 
             <TimelineModal
