@@ -1,6 +1,4 @@
-"use client";
-
-import React, { useMemo } from 'react';
+import React, { useMemo, forwardRef } from 'react';
 import { Timesheet } from '@/lib/timesheet';
 import { TimelineItem } from '@/types/timeline';
 import { cn } from '@/lib/utils';
@@ -9,26 +7,21 @@ interface TimelineDisplayProps {
     data: TimelineItem[];
     minYear?: number;
     maxYear?: number;
+    className?: string;
+    onEdit?: (index: number) => void;
 }
 
-export function TimelineDisplay({ data, minYear = 2020, maxYear = 2026 }: TimelineDisplayProps) {
+export const TimelineDisplay = forwardRef<HTMLDivElement, TimelineDisplayProps>(({ data, minYear = 2020, maxYear = 2026, className, onEdit }, ref) => {
 
-    const { bubbles, years, totalHeight } = useMemo(() => {
-        // If no data, use default range
-        // Logic: Determine min/max from data if possible, or use props
-
-        // We instantiate Timesheet to let it calculate internal state
+    const { bubbles, years, totalMonths, minYear: derivedMin } = useMemo(() => {
         const ts = new Timesheet(minYear, maxYear, data);
 
-        // Get bubbles using default width (59px as per CSS)
-        const bubbles = ts.getBubbles(59);
+        // Ensure years are calculated correctly for the grid
         const years = ts.getYears();
+        const bubbles = ts.getGridBubbles();
+        const totalMonths = ts.getTotalMonths();
 
-        // Calculate naive height: (bubbles.length + 1) * 35px (approx row height)
-        // Legacy CSS: li height 32px + margin 3px = 35px
-        const totalHeight = (bubbles.length + 2) * 35; // +2 for buffer
-
-        return { bubbles, years, totalHeight };
+        return { bubbles, years, totalMonths, minYear: ts.year.min };
     }, [data, minYear, maxYear]);
 
     if (!data || data.length === 0) {
@@ -39,66 +32,71 @@ export function TimelineDisplay({ data, minYear = 2020, maxYear = 2026 }: Timeli
         );
     }
 
+    // Grid column width configuration
+    const COL_WIDTH = "minmax(40px, 1fr)";
+
     return (
-        <div className="w-full overflow-x-auto overflow-y-hidden border rounded-lg bg-[#1c1917] shadow-xl p-4">
-            <div className="relative min-w-[800px] pt-6" style={{ height: `${totalHeight}px` }}> {/* Ensure min-width for scroll */}
-                <div id="timesheet" className="timesheet color-scheme-default h-full w-full">
+        <div ref={ref} className="w-full overflow-x-auto border rounded-lg bg-[#1c1917] shadow-xl p-4">
+            <div
+                className="grid gap-y-2 relative"
+                style={{
+                    // Use CSS Grid for columns
+                    gridTemplateColumns: `repeat(${totalMonths}, ${COL_WIDTH})`,
+                    // Rows will be auto-generated
+                    gridAutoFlow: "row dense", // Try to pack items closely
+                }}
+            >
+                {/* Year Markers (First Row) */}
+                {years.map((year, i) => {
+                    // Calculate start column for the year
+                    // (Year - MinYear) * 12 + 1
+                    const colStart = (year - derivedMin) * 12 + 1;
+                    return (
+                        <div
+                            key={year}
+                            className="text-white/50 text-xs font-mono border-l border-white/10 pl-2 pt-2 pb-4 sticky top-0"
+                            style={{
+                                gridColumnStart: colStart,
+                                gridColumnEnd: `span 12`,
+                                gridRow: 1, // Force to first row
+                            }}
+                        >
+                            {year}
+                        </div>
+                    );
+                })}
 
-                    {/* Scale (Years) */}
-                    <div className="scale h-full absolute left-0 top-0 flex">
-                        {years.map((year) => (
-                            <section key={year} className="h-full border-l border-white/20">
-                                {year}
-                            </section>
-                        ))}
+                {/* Timeline Events */}
+                {bubbles.map((bubble, index) => (
+                    <div
+                        key={index}
+                        onClick={() => onEdit?.(index)}
+                        title={`${bubble.label} (${bubble.dateLabel})`}
+                        className={cn(
+                            "relative group rounded h-10 flex items-center px-2 transition-all hover:brightness-110 hover:z-10",
+                            onEdit ? "cursor-pointer hover:ring-2 hover:ring-white/50" : "",
+                            bubble.class
+                        )}
+                        style={{
+                            gridColumnStart: bubble.gridColumnStart,
+                            gridColumnEnd: `span ${bubble.gridColumnSpan}`,
+                            // We let grid-auto-flow place them in rows
+                        }}
+                    >
+                        {/* Bubble Content */}
+                        <div className="flex flex-col leading-none truncate w-full">
+                            <span className="text-[10px] text-white/70 uppercase tracking-wider mb-0.5">
+                                {bubble.dateLabel}
+                            </span>
+                            <span className="text-sm font-medium text-white truncate shadow-sm">
+                                {bubble.label}
+                            </span>
+                        </div>
                     </div>
-
-                    {/* Data Bubbles */}
-                    <ul className="data relative pt-8 list-none m-0">
-                        {bubbles.map((bubble, index) => (
-                            <li key={index} className="group hover:opacity-100 h-8 mb-1 block relative clear-both whitespace-nowrap">
-                                <span
-                                    className={cn(
-                                        "bubble block float-left relative top-1.5 rounded h-2.5 mr-2.5 opacity-70 transition-opacity group-hover:opacity-100",
-                                        bubble.class // e.g. "bubble-default", "bubble-lorem"
-                                    )}
-                                    style={{
-                                        marginLeft: `${bubble.marginLeft}px`,
-                                        width: `${bubble.width}px`
-                                    }}
-                                    data-duration={bubble.duration}
-                                >
-                                    <span className="date text-white text-xs mr-1 absolute -top-4 left-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
-                                        {bubble.dateLabel}
-                                    </span>
-                                    {/* Label is outside the bubble span in legacy CSS structure? No, it was inside. 
-                                In legacy CSS: .timesheet .data li .label is inside li but NOT inside .bubble?
-                                Let's check logic:
-                                Legacy TS: 
-                                bubbles.push({ ... dateLabel, label })
-                                Template:
-                                <li *ngFor...>
-                                  <span [style...] class="bubble">
-                                     <span class="date">{{ bubble.dateLabel }}</span>
-                                     <span class="label">{{ bubble.label }}</span>
-                                  </span>
-                                </li>
-                                Wait, if they are INSIDE the bubble span (which has overflow hidden maybe? No. width is set).
-                                If width is small, text might overflow.
-                                Legacy CSS: .label { white-space: nowrap; }
-                                It seems they are inside.
-                             */}
-                                    <div className="flex items-center absolute left-full top-[-2px] pl-2 w-max">
-                                        <span className="label text-white/90 font-light text-sm leading-none">
-                                            {bubble.label}
-                                        </span>
-                                    </div>
-                                </span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
+                ))}
             </div>
         </div>
     );
-}
+});
+
+TimelineDisplay.displayName = "TimelineDisplay";

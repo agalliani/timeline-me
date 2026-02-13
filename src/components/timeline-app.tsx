@@ -5,16 +5,19 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { toPng } from "html-to-image";
 import { TimelineItem } from "@/types/timeline";
 import { TimelineDisplay } from "@/components/timeline-display";
-import { TimelineForm } from "@/components/timeline-form";
+// import { TimelineForm } from "@/components/timeline-form"; // Moved to Modal
+import { TimelineModal } from "@/components/timeline-modal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Share2, Download, Trash2 } from "lucide-react";
+import { Share2, Download, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 export function TimelineApp() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [data, setData] = useState<TimelineItem[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedEventIndex, setSelectedEventIndex] = useState<number | null>(null);
     const timelineRef = useRef<HTMLDivElement>(null);
 
     // Load from URL on mount
@@ -49,20 +52,45 @@ export function TimelineApp() {
     // User UC: "User clicks Copy Share Link -> System encodes state".
     // So we don't need to sync URL on every change, only read on load.
 
-    const addItem = (item: TimelineItem) => {
-        const newData = [...data, item];
-        setData(newData);
-        saveToLocalStorage(newData);
+    const saveToLocalStorage = (items: TimelineItem[]) => {
+        localStorage.setItem("timeline-data", JSON.stringify(items));
     };
 
-    const removeItem = (index: number) => {
+    const handleAdd = () => {
+        setSelectedEventIndex(null);
+        setIsModalOpen(true);
+    };
+
+    const handleEdit = (index: number) => {
+        setSelectedEventIndex(index);
+        setIsModalOpen(true);
+    };
+
+    const handleSave = (item: TimelineItem) => {
+        const newData = [...data];
+
+        if (selectedEventIndex !== null) {
+            // Edit existing
+            newData[selectedEventIndex] = item;
+        } else {
+            // Add new
+            newData.push(item);
+        }
+
+        // Auto-Sort by Start Date
+        newData.sort((a, b) => a.start.localeCompare(b.start));
+
+        setData(newData);
+        saveToLocalStorage(newData);
+        setIsModalOpen(false);
+        toast.success(selectedEventIndex !== null ? "Event updated!" : "Event added!");
+    };
+
+    const handleDelete = (index: number) => {
         const newData = data.filter((_, i) => i !== index);
         setData(newData);
         saveToLocalStorage(newData);
-    };
-
-    const saveToLocalStorage = (items: TimelineItem[]) => {
-        localStorage.setItem("timeline-data", JSON.stringify(items));
+        toast.success("Event deleted!");
     };
 
     // Load from LocalStorage on mount if URL is empty
@@ -105,6 +133,13 @@ export function TimelineApp() {
             const dataUrl = await toPng(element, {
                 cacheBust: true,
                 backgroundColor: "#1c1917",
+                width: element.scrollWidth,
+                height: element.scrollHeight,
+                style: {
+                    overflow: 'visible', // Ensure full capture
+                    maxHeight: 'none',
+                    maxWidth: 'none',
+                }
             });
 
             const link = document.createElement("a");
@@ -119,7 +154,7 @@ export function TimelineApp() {
     };
 
     return (
-        <div className="space-y-12">
+        <div className="space-y-8">
             {/* Header / Intro */}
             <div className="text-center space-y-4">
                 <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">
@@ -130,34 +165,53 @@ export function TimelineApp() {
                 </p>
             </div>
 
-            {/* Visualization */}
+            {/* Visualization and Controls */}
             <div className="space-y-4">
-                <div className="flex justify-end gap-2">
-                    <Button variant="outline" size="sm" onClick={handleSaveImage} disabled={data.length === 0}>
-                        <Download className="mr-2 h-4 w-4" /> Save as Image
+                <div className="flex justify-between items-center bg-card/50 backdrop-blur-sm p-4 rounded-lg border shadow-sm">
+                    <Button onClick={handleAdd} className="gap-2">
+                        <Plus className="h-4 w-4" /> Add Event
                     </Button>
-                    <Button variant="default" size="sm" onClick={handleShare} disabled={data.length === 0}>
-                        <Share2 className="mr-2 h-4 w-4" /> Copy Share Link
-                    </Button>
+
+                    <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={handleSaveImage} disabled={data.length === 0}>
+                            <Download className="mr-2 h-4 w-4" /> Save Image
+                        </Button>
+                        <Button variant="secondary" size="sm" onClick={handleShare} disabled={data.length === 0}>
+                            <Share2 className="mr-2 h-4 w-4" /> Share
+                        </Button>
+                    </div>
                 </div>
 
-                {/* We wrap TimelineDisplay in a div that we can ref for html-to-image */}
-                <div ref={timelineRef} className="p-4 bg-[#1c1917] rounded-lg overflow-hidden">
-                    <TimelineDisplay data={data} minYear={data.length > 0 ? undefined : 2020} maxYear={data.length > 0 ? undefined : 2026} />
-                </div>
+                {/* TimelineDisplay handles its own styling and scrolling. We attach ref directly. */}
+                {/* @ts-ignore: onEdit not yet in TimelineDisplay props, fixing next */}
+                <TimelineDisplay
+                    ref={timelineRef}
+                    data={data}
+                    minYear={data.length > 0 ? undefined : 2020}
+                    maxYear={data.length > 0 ? undefined : 2026}
+                    onEdit={handleEdit}
+                />
             </div>
 
-            {/* Form */}
-            <TimelineForm onSubmit={addItem} />
+            <TimelineModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSubmit={handleSave}
+                initialData={selectedEventIndex !== null ? data[selectedEventIndex] : null}
+            />
 
-            {/* List / Edit (Basic list for now) */}
+            {/* List View for easier management */}
             {data.length > 0 && (
                 <Card>
                     <CardContent className="pt-6">
                         <h3 className="text-lg font-semibold mb-4">Your Events</h3>
                         <div className="space-y-2">
                             {data.map((item, index) => (
-                                <div key={index} className="flex items-center justify-between p-3 border rounded-md hover:bg-muted/50 transition-colors">
+                                <div
+                                    key={index}
+                                    className="flex items-center justify-between p-3 border rounded-md hover:bg-muted/50 transition-colors cursor-pointer"
+                                    onClick={() => handleEdit(index)}
+                                >
                                     <div>
                                         <span className="font-medium">{item.label}</span>
                                         <span className="text-sm text-muted-foreground ml-2">
@@ -167,7 +221,15 @@ export function TimelineApp() {
                                             {item.category}
                                         </span>
                                     </div>
-                                    <Button variant="ghost" size="icon" onClick={() => removeItem(index)} className="text-destructive hover:text-destructive/90 hover:bg-destructive/10">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDelete(index);
+                                        }}
+                                        className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
+                                    >
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
                                 </div>

@@ -87,38 +87,84 @@ export class Timesheet {
     }
 
     getBubbles(widthMonth?: number): BubbleModel[] {
-        const effectiveWidth = widthMonth || this.widthMonth;
+        // ... legacy implementation wrapper or deprecation notice?
+        // Let's keep it for safety but recommend getGridBubbles
+        return this.getGridBubbles().map(b => ({
+            ...b,
+            marginLeft: 0, // No longer used in grid
+            width: 0       // No longer used in grid
+        }));
+    }
+
+    getGridBubbles(): BubbleModel[] {
         const bubbles: BubbleModel[] = [];
 
         for (let n = 0, m = this.data.length; n < m; n++) {
             const cur = this.data[n];
-            // Here we pass effectiveWidth. Note: Legacy Bubble constructor takes widthMonth as first arg.
-            const bubble = new Bubble(effectiveWidth, this.year.min, cur.start, cur.end);
+
+            // Calculate Start Column (1-based)
+            // (Year - MinYear) * 12 + Month + 1
+            const monthIndex = cur.start.date.getMonth(); // 0-11
+            const yearDiff = cur.start.date.getFullYear() - this.year.min;
+            const startColumn = (yearDiff * 12) + monthIndex + 1;
+
+            // Calculate Span (Duration in months)
+            // Logic borrowed from Bubble.getMonths() but simplified
+            let durationMonths = 0;
+            const fullYears = ((cur.end && cur.end.date.getFullYear()) || cur.start.date.getFullYear()) - cur.start.date.getFullYear();
+
+            if (!cur.end) {
+                // Point event or single year?
+                // Legacy: !hasMonth ? 12 : 1
+                durationMonths = !cur.start.hasMonth ? 12 : 1;
+            } else {
+                // Complex duration calculation
+                // We can reuse Bubble logic if we import it, or re-implement cleanly.
+                // Let's re-implement key parts:
+                if (!cur.end.hasMonth) {
+                    // End is a full year. 
+                    // Start might be a month.
+                    // (12 - startMonth) + (12 * (fullYears - 1 or 0))
+                    // If fullYears > 0
+                    if (fullYears > 0) {
+                        durationMonths += (12 - (cur.start.hasMonth ? cur.start.date.getMonth() : 0));
+                        durationMonths += 12 * (fullYears - 1);
+                    } else {
+                        // Same year?
+                        durationMonths += (12 - cur.start.date.getMonth());
+                    }
+                } else {
+                    // End has specific month
+                    // (EndMonth + 1) + (12-StartMonth) + 12*(fullYears-1)?
+                    // Careful with overlaps.
+                    // Diff in months = (EndYear - StartYear)*12 + (EndMonth - StartMonth) + 1 (inclusive)
+                    const endTotal = (cur.end.date.getFullYear() * 12) + cur.end.date.getMonth();
+                    const startTotal = (cur.start.date.getFullYear() * 12) + cur.start.date.getMonth();
+                    durationMonths = endTotal - startTotal + 1; // Inclusive
+                }
+            }
+
+            // Safety
+            if (durationMonths < 1) durationMonths = 1;
+
+            const bubble = new Bubble(0, this.year.min, cur.start, cur.end); // Just for helpers if needed
 
             bubbles.push({
-                marginLeft: bubble.getStartOffset(),
-                width: bubble.getWidth(),
+                marginLeft: 0,
+                width: 0,
+                gridColumnStart: startColumn,
+                gridColumnSpan: durationMonths,
                 class: 'bubble bubble-' + (cur.type || 'default'),
                 duration: cur.end ? Math.round((cur.end.date.getTime() - cur.start.date.getTime()) / 1000 / 60 / 60 / 24 / 39).toString() : '',
-                dateLabel: bubble.getDateLabel(),
+                dateLabel: bubble.getDateLabel(), // Reusing Bubble for formatting
                 label: cur.label
             });
         }
 
-        // Add empty bubble for offset
-        const offsetStart: DateObj = { date: new Date(this.year.min, 0, -1, 1), hasMonth: false };
-        const offsetEnd: DateObj = { date: new Date(this.year.max + 2, 11, -1, 1), hasMonth: false };
-        const offsetBubble = new Bubble(effectiveWidth, this.year.min, offsetStart, offsetEnd);
-
-        bubbles.push({
-            marginLeft: 0,
-            width: offsetBubble.getWidth(),
-            class: 'bubble bubble-empty',
-            duration: '',
-            dateLabel: '',
-            label: ''
-        });
-
         return bubbles;
+    }
+
+    getTotalMonths(): number {
+        return (this.year.max - this.year.min + 3) * 12; // +3 years buffer
     }
 }

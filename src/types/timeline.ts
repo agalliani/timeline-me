@@ -18,10 +18,14 @@ export interface ParsedTimelineItem {
 }
 
 export interface BubbleModel {
-    marginLeft: number;
-    width: number;
+    marginLeft: number; // Legacy
+    width: number;      // Legacy
     class: string;
     duration: string;
     dateLabel: string;
     label: string;
+
+    // Grid Support
+    gridColumnStart?: number;
+    gridColumnSpan?: number;
 }

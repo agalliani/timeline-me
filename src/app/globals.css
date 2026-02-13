@@ -128,103 +128,27 @@
   }
 }
 
-/* Timeline Custom Styles */
-.timesheet {
-  border-top: 1px solid rgba(250, 250, 250, 0.5);
-  background-color: #333333;
-  left: 0;
-  width: 100%;
-  position: relative;
-  /* Changed from absolute to relative for better layout flow */
-}
-
-.timesheet.color-scheme-default .bubble-empty {
-  background-color: transparent;
-}
-
-.timesheet.color-scheme-default .bubble-default {
+/* Timeline Custom Styles - Colors */
+.bubble-default {
   background-color: #2e80f3;
 }
 
-.timesheet.color-scheme-default .bubble-lorem {
+.bubble-lorem {
   background-color: #9aca27;
-  /* RGBA(154, 202, 39, 1) */
 }
 
-.timesheet.color-scheme-default .bubble-ipsum {
+.bubble-ipsum {
   background-color: #3cb6e3;
-  /* RGBA(60, 182, 227, 1) */
 }
 
-.timesheet.color-scheme-default .bubble-dolor {
+.bubble-dolor {
   background-color: #f4cf30;
-  /* RGBA(244, 207, 48, 1) */
 }
 
-.timesheet.color-scheme-default .bubble-sit {
+.bubble-sit {
   background-color: #a969ca;
-  /* RGBA(169, 105, 202, 1) */
 }
 
-.timesheet .scale section {
-  float: left;
-  width: 59px;
-  text-align: center;
-  color: rgba(250, 250, 250, 0.8);
-  font-size: 14px;
-  line-height: 24px;
-  font-weight: lighter;
-  border-left: 1px dashed rgba(250, 250, 250, 0.2);
-  height: 100%;
-}
-
-.timesheet .data {
-  margin: 31px 0 0 0;
-  padding: 0;
-  text-align: left;
-  list-style-type: none;
-  font-size: 13px;
-  overflow: hidden;
-}
-
-.timesheet .data li {
-  margin: 0 0 3px 0;
-  line-height: 22px;
-  height: 32px;
-  display: block;
-  clear: both;
-  position: relative;
-  white-space: nowrap;
-}
-
-.timesheet .data li:hover .bubble {
-  opacity: 1;
-}
-
-.timesheet .data li .date {
-  color: white;
-  font-size: 15px;
-  margin-right: 5px;
-}
-
-.timesheet .data li .label {
-  font-weight: lighter;
-  font-size: 14px;
-  padding-left: 0px;
-  line-height: 12px;
-  color: white;
-  white-space: nowrap;
-  vertical-align: middle;
-}
-
-.timesheet .data li .bubble {
-  height: 10px;
-  display: block;
-  float: left;
-  position: relative;
-  top: 7px;
-  border-radius: 4px;
-  margin: 0 10px 0 0;
-  opacity: 0.7;
-  transition: opacity 0.2s;
+.bubble-empty {
+    background-color: transparent;
 }

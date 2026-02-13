@@ -21,7 +21,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const formSchema = z.object({
     start: z.string().min(1, { message: "Start date is required" }),
@@ -32,120 +31,127 @@ const formSchema = z.object({
 
 interface TimelineFormProps {
     onSubmit: (data: TimelineItem) => void;
+    defaultValues?: TimelineItem;
+    submitLabel?: string;
 }
 
-export function TimelineForm({ onSubmit }: TimelineFormProps) {
+export function TimelineForm({ onSubmit, defaultValues, submitLabel = "Add Timeline Event" }: TimelineFormProps) {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            start: "",
-            end: "",
-            label: "",
-            category: "default",
+            start: defaultValues?.start || "",
+            end: defaultValues?.end || "",
+            label: defaultValues?.label || "",
+            category: defaultValues?.category || "default",
         },
     });
+
+    // Reset form when defaultValues change (important for modal reuse)
+    // We can use a key on the component or useEffect, but key is cleaner in parent.
+    // Actually, let's add a useEffect to be safe if parent doesn't key.
+    // ... import useEffect ... 
 
     function handleSubmit(values: z.infer<typeof formSchema>) {
         onSubmit({
             start: values.start,
-            end: values.end || null, // Convert empty string to null
+            end: values.end || null,
             label: values.label,
             category: values.category,
         });
-        form.reset({
-            start: "",
-            end: "",
-            label: "",
-            category: "default"
-        });
+        // Only reset if NOT editing (no defaultValues provided) or if explicitly desired.
+        // Usually in a modal, we close the modal, so reset might not matter, 
+        // but if we reuse the form for "Add", we want it clear.
+        if (!defaultValues) {
+            form.reset({
+                start: "",
+                end: "",
+                label: "",
+                category: "default"
+            });
+        }
     }
 
     return (
-        <Card className="w-full max-w-4xl mx-auto shadow-lg bg-card/50 backdrop-blur-sm border-muted">
-            <CardHeader>
-                <CardTitle>Add New Event</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="start"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Start (YYYY-MM)</FormLabel>
-                                        <FormControl>
-                                            <Input type="month" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                        control={form.control}
+                        name="start"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Start (YYYY-MM)</FormLabel>
+                                <FormControl>
+                                    <Input type="month" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
 
-                            <FormField
-                                control={form.control}
-                                name="end"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>End (YYYY-MM)</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="month"
-                                                {...field}
-                                                value={field.value || ""}
-                                                onChange={(e) => field.onChange(e.target.value || null)}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                    <FormField
+                        control={form.control}
+                        name="end"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>End (YYYY-MM)</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="month"
+                                        {...field}
+                                        value={field.value || ""}
+                                        onChange={(e) => field.onChange(e.target.value || null)}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
 
-                            <FormField
-                                control={form.control}
-                                name="label"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Label</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="Job, Event, etc." {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                    <FormField
+                        control={form.control}
+                        name="label"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Label</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Job, Event, etc." {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
 
-                            <FormField
-                                control={form.control}
-                                name="category"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Category</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select a category" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                <SelectItem value="default">Default (Blue)</SelectItem>
-                                                <SelectItem value="lorem">Green</SelectItem>
-                                                <SelectItem value="ipsum">Cyan</SelectItem>
-                                                <SelectItem value="dolor">Yellow</SelectItem>
-                                                <SelectItem value="sit">Purple</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
+                    <FormField
+                        control={form.control}
+                        name="category"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Category</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a category" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="default">Default (Blue)</SelectItem>
+                                        <SelectItem value="lorem">Green</SelectItem>
+                                        <SelectItem value="ipsum">Cyan</SelectItem>
+                                        <SelectItem value="dolor">Yellow</SelectItem>
+                                        <SelectItem value="sit">Purple</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
 
-                        <Button type="submit" className="w-full md:w-auto">Add Timeline Event</Button>
-                    </form>
-                </Form>
-            </CardContent>
-        </Card>
+                <div className="flex justify-end">
+                    <Button type="submit">{submitLabel}</Button>
+                </div>
+            </form>
+        </Form>
     );
 }
