@@ -167,7 +167,7 @@ export function TimelineApp() {
 
             {/* Visualization and Controls */}
             <div className="space-y-4">
-                <div className="flex justify-between items-center bg-card/50 backdrop-blur-sm p-4 rounded-lg border shadow-sm">
+                <div className="flex justify-between items-center bg-card border-border/50 p-4 rounded-lg border shadow-sm">
                     <Button onClick={handleAdd} className="gap-2">
                         <Plus className="h-4 w-4" /> Add Event
                     </Button>
@@ -214,7 +214,7 @@ export function TimelineApp() {
                                 >
                                     <div>
                                         <span className="font-medium">{item.label}</span>
-                                        <span className="text-sm text-muted-foreground ml-2">
+                                        <span className="text-sm text-zinc-500 dark:text-zinc-400 ml-2">
                                             ({item.start} {item.end ? `- ${item.end}` : ""})
                                         </span>
                                         <span className="text-xs ml-2 px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground text-capitalize">

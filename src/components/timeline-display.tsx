@@ -54,7 +54,7 @@ export const TimelineDisplay = forwardRef<HTMLDivElement, TimelineDisplayProps>(
                     return (
                         <div
                             key={year}
-                            className="text-white/50 text-xs font-mono border-l border-white/10 pl-2 pt-2 pb-4 sticky top-0"
+                            className="text-white/90 text-xs font-medium font-mono border-l border-white/20 pl-2 pt-2 pb-4 sticky top-0"
                             style={{
                                 gridColumnStart: colStart,
                                 gridColumnEnd: `span 12`,
