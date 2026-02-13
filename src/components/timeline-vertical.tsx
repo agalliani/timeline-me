@@ -5,6 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CalendarIcon, Edit2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface TimelineVerticalProps {
     data: TimelineItem[];
@@ -13,9 +19,9 @@ interface TimelineVerticalProps {
 }
 
 // Constants
-const PIXELS_PER_MONTH = 60;
-const MIN_EVENT_HEIGHT = 40; // Minimum height in pixels
-const HEADER_HEIGHT = 40; // Space for the top header
+const PIXELS_PER_MONTH = 32; // Reduced from 60 for compactness
+const MIN_EVENT_HEIGHT = 36; // Minimum height in pixels
+const HEADER_HEIGHT = 40;
 
 export function TimelineVertical({ data, className, onEdit }: TimelineVerticalProps) {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -61,7 +67,7 @@ export function TimelineVertical({ data, className, onEdit }: TimelineVerticalPr
 
         const parsedEvents = data.map((item, index) => {
             const startVal = getMonthValue(item.start);
-            const endVal = item.end ? getMonthValue(item.end) : startVal; // Should point events have duration? default to 1 month visually
+            const endVal = item.end ? getMonthValue(item.end) : startVal;
             return {
                 ...item,
                 originalIndex: index,
@@ -114,11 +120,7 @@ export function TimelineVertical({ data, className, onEdit }: TimelineVerticalPr
             };
         });
 
-        // 3. Determine Global Max Columns (or ideally local, but global for simple width calculation first)
         const maxColumns = columns.length;
-
-        // For better visual, we might want to know how many columns overlap *locally*, but even width is easier.
-        // Let's use maxColumns for uniform width for now.
 
         return {
             events: positionedEvents.map(e => ({
@@ -168,11 +170,21 @@ export function TimelineVertical({ data, className, onEdit }: TimelineVerticalPr
 
     const getCategoryColor = (category: string) => {
         switch (category) {
-            case 'lorem': return 'bg-green-500/10 border-green-500 text-green-700 dark:text-green-300';
-            case 'ipsum': return 'bg-cyan-500/10 border-cyan-500 text-cyan-700 dark:text-cyan-300';
-            case 'dolor': return 'bg-yellow-500/10 border-yellow-500 text-yellow-700 dark:text-yellow-300';
-            case 'sit': return 'bg-purple-500/10 border-purple-500 text-purple-700 dark:text-purple-300';
-            default: return 'bg-blue-500/10 border-blue-500 text-blue-700 dark:text-blue-300';
+            case 'lorem': return 'bg-emerald-50 border-emerald-500 text-emerald-900 hover:bg-emerald-100 hover:border-emerald-600 dark:bg-emerald-900/20 dark:border-emerald-500 dark:text-emerald-100 dark:hover:bg-emerald-900/30';
+            case 'ipsum': return 'bg-sky-50 border-sky-500 text-sky-900 hover:bg-sky-100 hover:border-sky-600 dark:bg-sky-900/20 dark:border-sky-500 dark:text-sky-100 dark:hover:bg-sky-900/30';
+            case 'dolor': return 'bg-amber-50 border-amber-500 text-amber-900 hover:bg-amber-100 hover:border-amber-600 dark:bg-amber-900/20 dark:border-amber-500 dark:text-amber-100 dark:hover:bg-amber-900/30';
+            case 'sit': return 'bg-violet-50 border-violet-500 text-violet-900 hover:bg-violet-100 hover:border-violet-600 dark:bg-violet-900/20 dark:border-violet-500 dark:text-violet-100 dark:hover:bg-violet-900/30';
+            default: return 'bg-slate-50 border-slate-500 text-slate-900 hover:bg-slate-100 hover:border-slate-600 dark:bg-slate-800/50 dark:border-slate-500 dark:text-slate-100 dark:hover:bg-slate-800/70';
+        }
+    };
+
+    const getTooltipCategoryStyle = (category: string) => {
+        switch (category) {
+            case 'lorem': return 'border-emerald-500 text-emerald-700 bg-emerald-50';
+            case 'ipsum': return 'border-sky-500 text-sky-700 bg-sky-50';
+            case 'dolor': return 'border-amber-500 text-amber-700 bg-amber-50';
+            case 'sit': return 'border-violet-500 text-violet-700 bg-violet-50';
+            default: return 'border-slate-500 text-slate-700 bg-slate-50';
         }
     };
 
@@ -185,70 +197,104 @@ export function TimelineVertical({ data, className, onEdit }: TimelineVerticalPr
     }
 
     return (
-        <div className={cn("relative w-full overflow-hidden select-none", className)} ref={containerRef}>
+        <TooltipProvider delayDuration={300}>
+            <div className={cn("relative w-full overflow-hidden select-none bg-background rounded-xl border shadow-sm", className)} ref={containerRef}>
 
-            <div className="relative w-full" style={{ height: totalHeight }}>
-                {/* Background Grid */}
-                {gridLines.map((line, i) => (
-                    <div
-                        key={i}
-                        className={cn(
-                            "absolute w-full border-t flex items-start",
-                            line.isMajor ? "border-foreground/30" : "border-border/50"
-                        )}
-                        style={{ top: line.top }}
-                    >
-                        {/* Time Label */}
-                        <div className={cn(
-                            "w-16 md:w-24 shrink-0 pr-4 text-right pt-1 sticky left-0 z-20",
-                            line.isMajor ? "-mt-3" : "-mt-2"
-                        )}>
-                            {line.isMajor ? (
-                                <span className="text-lg font-bold bg-background px-1">{line.label}</span>
-                            ) : (
-                                <span className="text-xs text-muted-foreground bg-background/80 px-1">{line.monthName}</span>
+                <div className="relative w-full transition-all duration-500 ease-in-out" style={{ height: totalHeight }}>
+                    {/* Background Grid */}
+                    {gridLines.map((line, i) => (
+                        <div
+                            key={i}
+                            className={cn(
+                                "absolute w-full border-t flex items-start transition-opacity duration-300",
+                                line.isMajor ? "border-foreground/20 opacity-100" : "border-border/40 opacity-50"
                             )}
-                        </div>
-                    </div>
-                ))}
-
-                {/* Vertical Current Time Indicator? (Optional) */}
-
-                {/* Events Layer */}
-                <div className="absolute top-0 right-0 bottom-0 left-16 md:left-24 pr-4">
-                    {/* The content area offset by the time labels width */}
-
-                    {events.map((event, i) => {
-                        // Calculate width and left based on total columns
-                        // width = (100% / totalColumns) - gap
-                        // left = (100% / totalColumns) * colIndex
-
-                        // Use CSS variables or calc for cleaner code if possible, but inline style works
-                        return (
-                            <div
-                                key={i}
-                                className={cn(
-                                    "absolute rounded-lg border-l-4 p-2 transition-all hover:brightness-95 hover:z-50 cursor-pointer overflow-hidden group shadow-sm",
-                                    getCategoryColor(event.category)
+                            style={{ top: line.top }}
+                        >
+                            {/* Time Label */}
+                            <div className={cn(
+                                "w-20 md:w-28 shrink-0 pr-4 text-right pt-1 sticky left-0 z-20 flex justify-end items-center",
+                                line.isMajor ? "-mt-3.5" : "-mt-2"
+                            )}>
+                                {line.isMajor ? (
+                                    <span className="text-lg font-bold bg-background/95 backdrop-blur-sm px-2 py-0.5 rounded-md shadow-sm border border-border/50 text-foreground">
+                                        {line.label}
+                                    </span>
+                                ) : (
+                                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70 bg-background/80 px-1 rounded-sm">
+                                        {line.monthName}
+                                    </span>
                                 )}
-                                style={{
-                                    top: event.top,
-                                    height: event.height - 4, // Gap
-                                    left: `calc((100% / ${event.totalColumns}) * ${event.colIndex})`,
-                                    width: `calc((100% / ${event.totalColumns}) - 8px)`, // Subtract gap
-                                }}
-                                onClick={() => onEdit?.(event.originalIndex)}
-                                title={`${event.label} (${event.start} - ${event.end})`}
-                            >
-                                <div className="font-semibold text-sm truncate leading-tight">{event.label}</div>
-                                <div className="text-xs opacity-70 truncate mt-0.5">
-                                    {event.start} {event.end ? `- ${event.end}` : ""}
-                                </div>
                             </div>
-                        );
-                    })}
+                        </div>
+                    ))}
+
+                    {/* Events Layer */}
+                    <div className="absolute top-0 right-0 bottom-0 left-20 md:left-28 pr-4 py-4">
+                        {/* The content area offset by the time labels width */}
+
+                        {events.map((event, i) => {
+                            const isSmall = event.height < 50;
+
+                            return (
+                                <Tooltip key={i}>
+                                    <TooltipTrigger asChild>
+                                        <div
+                                            className={cn(
+                                                "absolute rounded-md border-l-[6px] px-2 py-1 transition-all duration-200 cursor-pointer overflow-hidden group shadow-sm hover:shadow-md hover:z-50 hover:scale-[1.01] hover:translate-x-1 flex flex-col justify-center",
+                                                getCategoryColor(event.category)
+                                            )}
+                                            style={{
+                                                top: event.top,
+                                                height: event.height - 4, // Gap
+                                                left: `calc((100% / ${event.totalColumns}) * ${event.colIndex})`,
+                                                width: `calc((100% / ${event.totalColumns}) - 12px)`, // Subtract gap
+                                            }}
+                                            onClick={() => onEdit?.(event.originalIndex)}
+                                        >
+                                            <div className={cn("font-bold truncate leading-tight tracking-tight", isSmall ? "text-xs" : "text-sm")}>{event.label}</div>
+                                            {!isSmall && (
+                                                <div className="flex items-center gap-1.5 text-xs opacity-75 truncate mt-0.5">
+                                                    <CalendarIcon className="w-3 h-3" />
+                                                    <span>{event.start}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="right" align="start" className="p-0 border-none bg-transparent shadow-xl z-50">
+                                        <Card className={cn("w-72 border-l-4", getTooltipCategoryStyle(event.category).split(' ')[0])}>
+                                            <CardHeader className="p-4 pb-2 bg-muted/5">
+                                                <CardTitle className="text-base leading-snug">{event.label}</CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="p-4 pt-3 text-sm space-y-3">
+                                                <div className="flex items-center justify-between">
+                                                    <Badge variant="outline" className={cn("text-xs uppercase tracking-wide font-medium", getTooltipCategoryStyle(event.category))}>
+                                                        {event.category}
+                                                    </Badge>
+                                                    <span className="text-xs text-muted-foreground font-mono">
+                                                        {event.duration} months
+                                                    </span>
+                                                </div>
+
+                                                <div className="flex items-center gap-2 text-muted-foreground bg-muted/20 p-2 rounded-md">
+                                                    <CalendarIcon className="w-4 h-4 text-foreground/70" />
+                                                    <span className="font-medium text-foreground/80">{event.start} — {event.end || 'Ongoing'}</span>
+                                                </div>
+
+                                                {/* Edit Hint */}
+                                                <div className="text-[10px] text-muted-foreground pt-2 border-t flex items-center gap-1">
+                                                    <Edit2 className="w-3 h-3" />
+                                                    Click to edit details
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </TooltipContent>
+                                </Tooltip>
+                            );
+                        })}
+                    </div>
                 </div>
             </div>
-        </div>
+        </TooltipProvider>
     );
 }
