@@ -21,8 +21,8 @@ interface TimelineVerticalProps {
 
 // Constants
 // Constants
-const PIXELS_PER_MONTH = 2.4; // Reduced to 1/10th of 24 as requested
-const MIN_EVENT_HEIGHT = 6; // Drastically reduced to match new scale
+const PIXELS_PER_MONTH = 6; // Increased slightly from 2.4 for better visibility
+const MIN_EVENT_HEIGHT = 12; // Adjusted for 6px density
 const HEADER_HEIGHT = 40;
 
 // Auto-Color Palette for Columns (when no category color is set)
