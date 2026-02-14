@@ -20,8 +20,9 @@ interface TimelineVerticalProps {
 }
 
 // Constants
-const PIXELS_PER_MONTH = 24; // Reduced to 24 for maximum compactness
-const MIN_EVENT_HEIGHT = 28; // Reduced min height
+// Constants
+const PIXELS_PER_MONTH = 2.4; // Reduced to 1/10th of 24 as requested
+const MIN_EVENT_HEIGHT = 6; // Drastically reduced to match new scale
 const HEADER_HEIGHT = 40;
 
 // Auto-Color Palette for Columns (when no category color is set)
@@ -265,9 +266,12 @@ export function TimelineVertical({ data, className, colorMap = {}, onEdit }: Tim
                                         {line.label}
                                     </span>
                                 ) : (
-                                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70 bg-background/80 px-1 rounded-sm">
-                                        {line.monthName}
-                                    </span>
+                                    // Only show months if density allows
+                                    PIXELS_PER_MONTH > 10 ? (
+                                        <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70 bg-background/80 px-1 rounded-sm">
+                                            {line.monthName}
+                                        </span>
+                                    ) : null
                                 )}
                             </div>
                         </div>
