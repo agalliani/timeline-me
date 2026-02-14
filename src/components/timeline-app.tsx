@@ -8,9 +8,10 @@ import { TimelineDisplay } from "@/components/timeline-display";
 import { TimelineVertical } from "@/components/timeline-vertical";
 // import { TimelineForm } from "@/components/timeline-form"; // Moved to Modal
 import { TimelineModal } from "@/components/timeline-modal";
+import { LinkedInImportModal } from "@/components/linkedin-import-modal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Share2, Download, Trash2, Plus } from "lucide-react";
+import { Share2, Download, Trash2, Plus, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 export function TimelineApp() {
@@ -19,6 +20,7 @@ export function TimelineApp() {
     const [data, setData] = useState<TimelineItem[]>([]);
     const [viewMode, setViewMode] = useState<'vertical' | 'horizontal'>('vertical');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [selectedEventIndex, setSelectedEventIndex] = useState<number | null>(null);
     const timelineRef = useRef<HTMLDivElement>(null);
 
@@ -93,6 +95,19 @@ export function TimelineApp() {
         setData(newData);
         saveToLocalStorage(newData);
         toast.success("Event deleted!");
+    };
+
+    const handleImport = (items: TimelineItem[]) => {
+        // Merge with existing data
+        const newData = [...data, ...items];
+        // Deduplicate? For now, just let user delete duplicates if any
+
+        // Auto-Sort
+        newData.sort((a, b) => a.start.localeCompare(b.start));
+
+        setData(newData);
+        saveToLocalStorage(newData);
+        toast.success(`Imported ${items.length} events from LinkedIn!`);
     };
 
     // Load from LocalStorage on mount if URL is empty
@@ -174,6 +189,9 @@ export function TimelineApp() {
                         <Button onClick={handleAdd} className="gap-2">
                             <Plus className="h-4 w-4" /> Add Event
                         </Button>
+                        <Button variant="outline" onClick={() => setIsImportModalOpen(true)} className="gap-2">
+                            <Upload className="h-4 w-4" /> Import LinkedIn
+                        </Button>
                     </div>
 
                     <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg">
@@ -230,6 +248,12 @@ export function TimelineApp() {
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleSave}
                 initialData={selectedEventIndex !== null ? data[selectedEventIndex] : null}
+            />
+
+            <LinkedInImportModal
+                isOpen={isImportModalOpen}
+                onClose={() => setIsImportModalOpen(false)}
+                onImport={handleImport}
             />
 
             {/* List View for easier management */}
