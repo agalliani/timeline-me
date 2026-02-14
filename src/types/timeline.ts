@@ -3,6 +3,7 @@ export interface TimelineItem {
     end: string | null; // Format: "MM/YYYY" or "YYYY" or null
     label: string;
     category: string;
+    description?: string;
 }
 
 export interface DateObj {
@@ -23,7 +24,9 @@ export interface BubbleModel {
     class: string;
     duration: string;
     dateLabel: string;
+    dateLabel: string;
     label: string;
+    description?: string;
 
     // Grid Support
     gridColumnStart?: number;

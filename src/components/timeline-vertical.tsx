@@ -15,6 +15,7 @@ import {
 interface TimelineVerticalProps {
     data: TimelineItem[];
     className?: string;
+    colorMap?: Record<string, string>;
     onEdit?: (index: number) => void;
 }
 
@@ -23,7 +24,7 @@ const PIXELS_PER_MONTH = 32; // Reduced from 60 for compactness
 const MIN_EVENT_HEIGHT = 36; // Minimum height in pixels
 const HEADER_HEIGHT = 40;
 
-export function TimelineVertical({ data, className, onEdit }: TimelineVerticalProps) {
+export function TimelineVertical({ data, className, colorMap = {}, onEdit }: TimelineVerticalProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const [containerWidth, setContainerWidth] = useState(0);
 
@@ -168,23 +169,51 @@ export function TimelineVertical({ data, className, onEdit }: TimelineVerticalPr
     }, [minDateValue, totalHeight]);
 
 
-    const getCategoryColor = (category: string) => {
-        switch (category) {
-            case 'lorem': return 'bg-emerald-50 border-emerald-500 text-emerald-900 hover:bg-emerald-100 hover:border-emerald-600 dark:bg-emerald-900/20 dark:border-emerald-500 dark:text-emerald-100 dark:hover:bg-emerald-900/30';
-            case 'ipsum': return 'bg-sky-50 border-sky-500 text-sky-900 hover:bg-sky-100 hover:border-sky-600 dark:bg-sky-900/20 dark:border-sky-500 dark:text-sky-100 dark:hover:bg-sky-900/30';
-            case 'dolor': return 'bg-amber-50 border-amber-500 text-amber-900 hover:bg-amber-100 hover:border-amber-600 dark:bg-amber-900/20 dark:border-amber-500 dark:text-amber-100 dark:hover:bg-amber-900/30';
-            case 'sit': return 'bg-violet-50 border-violet-500 text-violet-900 hover:bg-violet-100 hover:border-violet-600 dark:bg-violet-900/20 dark:border-violet-500 dark:text-violet-100 dark:hover:bg-violet-900/30';
-            default: return 'bg-slate-50 border-slate-500 text-slate-900 hover:bg-slate-100 hover:border-slate-600 dark:bg-slate-800/50 dark:border-slate-500 dark:text-slate-100 dark:hover:bg-slate-800/70';
+    const getCategoryClasses = (category: string) => {
+        const colorName = colorMap[category] || 'slate';
+        switch (colorName) {
+            case 'red': return 'bg-red-50 border-red-500 text-red-900 group-hover:bg-red-100 dark:bg-red-950/30 dark:border-red-500 dark:text-red-100';
+            case 'orange': return 'bg-orange-50 border-orange-500 text-orange-900 group-hover:bg-orange-100 dark:bg-orange-950/30 dark:border-orange-500 dark:text-orange-100';
+            case 'amber': return 'bg-amber-50 border-amber-500 text-amber-900 group-hover:bg-amber-100 dark:bg-amber-950/30 dark:border-amber-500 dark:text-amber-100';
+            case 'yellow': return 'bg-yellow-50 border-yellow-500 text-yellow-900 group-hover:bg-yellow-100 dark:bg-yellow-950/30 dark:border-yellow-500 dark:text-yellow-100';
+            case 'lime': return 'bg-lime-50 border-lime-500 text-lime-900 group-hover:bg-lime-100 dark:bg-lime-950/30 dark:border-lime-500 dark:text-lime-100';
+            case 'green': return 'bg-green-50 border-green-500 text-green-900 group-hover:bg-green-100 dark:bg-green-950/30 dark:border-green-500 dark:text-green-100';
+            case 'emerald': return 'bg-emerald-50 border-emerald-500 text-emerald-900 group-hover:bg-emerald-100 dark:bg-emerald-950/30 dark:border-emerald-500 dark:text-emerald-100';
+            case 'teal': return 'bg-teal-50 border-teal-500 text-teal-900 group-hover:bg-teal-100 dark:bg-teal-950/30 dark:border-teal-500 dark:text-teal-100';
+            case 'cyan': return 'bg-cyan-50 border-cyan-500 text-cyan-900 group-hover:bg-cyan-100 dark:bg-cyan-950/30 dark:border-cyan-500 dark:text-cyan-100';
+            case 'sky': return 'bg-sky-50 border-sky-500 text-sky-900 group-hover:bg-sky-100 dark:bg-sky-950/30 dark:border-sky-500 dark:text-sky-100';
+            case 'blue': return 'bg-blue-50 border-blue-500 text-blue-900 group-hover:bg-blue-100 dark:bg-blue-950/30 dark:border-blue-500 dark:text-blue-100';
+            case 'indigo': return 'bg-indigo-50 border-indigo-500 text-indigo-900 group-hover:bg-indigo-100 dark:bg-indigo-950/30 dark:border-indigo-500 dark:text-indigo-100';
+            case 'violet': return 'bg-violet-50 border-violet-500 text-violet-900 group-hover:bg-violet-100 dark:bg-violet-950/30 dark:border-violet-500 dark:text-violet-100';
+            case 'purple': return 'bg-purple-50 border-purple-500 text-purple-900 group-hover:bg-purple-100 dark:bg-purple-950/30 dark:border-purple-500 dark:text-purple-100';
+            case 'fuchsia': return 'bg-fuchsia-50 border-fuchsia-500 text-fuchsia-900 group-hover:bg-fuchsia-100 dark:bg-fuchsia-950/30 dark:border-fuchsia-500 dark:text-fuchsia-100';
+            case 'pink': return 'bg-pink-50 border-pink-500 text-pink-900 group-hover:bg-pink-100 dark:bg-pink-950/30 dark:border-pink-500 dark:text-pink-100';
+            case 'rose': return 'bg-rose-50 border-rose-500 text-rose-900 group-hover:bg-rose-100 dark:bg-rose-950/30 dark:border-rose-500 dark:text-rose-100';
+            default: return 'bg-slate-50 border-slate-500 text-slate-900 group-hover:bg-slate-100 dark:bg-slate-800/50 dark:border-slate-500 dark:text-slate-100';
         }
     };
 
     const getTooltipCategoryStyle = (category: string) => {
-        switch (category) {
-            case 'lorem': return 'border-emerald-500 text-emerald-700 bg-emerald-50';
-            case 'ipsum': return 'border-sky-500 text-sky-700 bg-sky-50';
-            case 'dolor': return 'border-amber-500 text-amber-700 bg-amber-50';
-            case 'sit': return 'border-violet-500 text-violet-700 bg-violet-50';
-            default: return 'border-slate-500 text-slate-700 bg-slate-50';
+        const colorName = colorMap[category] || 'slate';
+        switch (colorName) {
+            case 'red': return 'border-red-500 text-red-700 bg-red-50 dark:text-red-300 dark:bg-red-900/10';
+            case 'orange': return 'border-orange-500 text-orange-700 bg-orange-50 dark:text-orange-300 dark:bg-orange-900/10';
+            case 'amber': return 'border-amber-500 text-amber-700 bg-amber-50 dark:text-amber-300 dark:bg-amber-900/10';
+            case 'yellow': return 'border-yellow-500 text-yellow-700 bg-yellow-50 dark:text-yellow-300 dark:bg-yellow-900/10';
+            case 'lime': return 'border-lime-500 text-lime-700 bg-lime-50 dark:text-lime-300 dark:bg-lime-900/10';
+            case 'green': return 'border-green-500 text-green-700 bg-green-50 dark:text-green-300 dark:bg-green-900/10';
+            case 'emerald': return 'border-emerald-500 text-emerald-700 bg-emerald-50 dark:text-emerald-300 dark:bg-emerald-900/10';
+            case 'teal': return 'border-teal-500 text-teal-700 bg-teal-50 dark:text-teal-300 dark:bg-teal-900/10';
+            case 'cyan': return 'border-cyan-500 text-cyan-700 bg-cyan-50 dark:text-cyan-300 dark:bg-cyan-900/10';
+            case 'sky': return 'border-sky-500 text-sky-700 bg-sky-50 dark:text-sky-300 dark:bg-sky-900/10';
+            case 'blue': return 'border-blue-500 text-blue-700 bg-blue-50 dark:text-blue-300 dark:bg-blue-900/10';
+            case 'indigo': return 'border-indigo-500 text-indigo-700 bg-indigo-50 dark:text-indigo-300 dark:bg-indigo-900/10';
+            case 'violet': return 'border-violet-500 text-violet-700 bg-violet-50 dark:text-violet-300 dark:bg-violet-900/10';
+            case 'purple': return 'border-purple-500 text-purple-700 bg-purple-50 dark:text-purple-300 dark:bg-purple-900/10';
+            case 'fuchsia': return 'border-fuchsia-500 text-fuchsia-700 bg-fuchsia-50 dark:text-fuchsia-300 dark:bg-fuchsia-900/10';
+            case 'pink': return 'border-pink-500 text-pink-700 bg-pink-50 dark:text-pink-300 dark:bg-pink-900/10';
+            case 'rose': return 'border-rose-500 text-rose-700 bg-rose-50 dark:text-rose-300 dark:bg-rose-900/10';
+            default: return 'border-slate-500 text-slate-700 bg-slate-50 dark:text-slate-300 dark:bg-slate-900/10';
         }
     };
 
@@ -242,7 +271,7 @@ export function TimelineVertical({ data, className, onEdit }: TimelineVerticalPr
                                         <div
                                             className={cn(
                                                 "absolute rounded-md border-l-[6px] px-2 py-1 transition-all duration-200 cursor-pointer overflow-hidden group shadow-sm hover:shadow-md hover:z-50 hover:scale-[1.01] hover:translate-x-1 flex flex-col justify-center",
-                                                getCategoryColor(event.category)
+                                                getCategoryClasses(event.category)
                                             )}
                                             style={{
                                                 top: event.top,
@@ -276,10 +305,13 @@ export function TimelineVertical({ data, className, onEdit }: TimelineVerticalPr
                                                     </span>
                                                 </div>
 
-                                                <div className="flex items-center gap-2 text-muted-foreground bg-muted/20 p-2 rounded-md">
-                                                    <CalendarIcon className="w-4 h-4 text-foreground/70" />
-                                                    <span className="font-medium text-foreground/80">{event.start} — {event.end || 'Ongoing'}</span>
-                                                </div>
+                                                <span className="font-medium text-foreground/80">{event.start} — {event.end || 'Ongoing'}</span>
+
+                                                {event.description && (
+                                                    <div className="text-muted-foreground bg-muted/10 p-2 rounded-md max-h-[150px] overflow-y-auto text-xs leading-relaxed whitespace-pre-wrap">
+                                                        {event.description}
+                                                    </div>
+                                                )}
 
                                                 {/* Edit Hint */}
                                                 <div className="text-[10px] text-muted-foreground pt-2 border-t flex items-center gap-1">
@@ -295,6 +327,6 @@ export function TimelineVertical({ data, className, onEdit }: TimelineVerticalPr
                     </div>
                 </div>
             </div>
-        </TooltipProvider>
+        </TooltipProvider >
     );
 }

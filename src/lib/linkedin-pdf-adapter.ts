@@ -129,6 +129,12 @@ export const parseLinkedInPDF = async (file: File): Promise<TimelineItem[]> => {
                     }
 
                     if (cursor >= 0) {
+                        // Heuristic: Role should not be too long (max 100 chars)
+                        // If it is, keep backtracking? No, if we hit description, we missed the role.
+                        // But usually description comes AFTER date. 
+                        // If we are looking BEFORE date, we should see Duration, then Role.
+                        // If we see a long line, it might be a multi-line role or we jumped too far?
+                        // Let's assume lines[cursor] is the role.
                         role = lines[cursor];
                         cursor--;
                     }
@@ -147,11 +153,72 @@ export const parseLinkedInPDF = async (file: File): Promise<TimelineItem[]> => {
                         continue;
                     }
 
+                    // Extract Description
+                    // The description is everything between `i` (current date line) and `cursor` (the role/company line)
+                    // But `cursor` was decremented to find them.
+                    // Actually, the structure usually is:
+                    // 1. Role
+                    // 2. Company
+                    // 3. Duration/Location (Optional)
+                    // 4. Date Range (Current line `i`)
+                    // 5. Description (Lines AFTER `i` until next item)
+
+                    // WAIT! My previous logic looked BACKWARDS for Role/Company.
+                    // The description is usually AFTER the date range line in LinkedIn PDFs?
+                    // Let's check a typical LinkedIn PDF structure.
+                    // Role
+                    // Company
+                    // Date
+                    // Location
+                    // Description...
+                    // Next Item...
+
+                    // If `i` is the date line, description follows `i`.
+                    // We need to capture lines from `i+1` until we hit the start of the next item (Rule: Next item usually starts with a bold Role or a new Date or Section).
+                    // But we detect items by Date Range `match(dateRangeRegex)`.
+                    // So we can just peek forward until we find another date range or section header.
+
+                    let description = "";
+                    let d = i + 1;
+                    const descriptionLines: string[] = [];
+
+                    // Heuristic: Stop at next date range or section header or end of file
+                    while (d < lines.length) {
+                        const nextLine = lines[d].trim();
+                        if (
+                            nextLine.match(dateRangeRegex) ||
+                            nextLine.match(/^E[xs]p?erien[cz](e|a)$/i) ||
+                            nextLine.match(/^Ed?ucation$/i) ||
+                            nextLine.match(/^Formazione$/i) ||
+                            nextLine.match(/^Competenze|Skills$/i)
+                        ) {
+                            break;
+                        }
+
+                        // Also stop if line looks like a duration "2 mos" right after date?
+                        // LinkedIn often has "Location" line right after date.
+                        if (d === i + 1 && (nextLine.match(/^[A-Za-z\s,]+$/) && nextLine.length < 50)) {
+                            // Likely location, skip or include? 
+                            // Often "Milan, Lombardy, Italy"
+                            // Let's skip it if it looks like location
+                        } else {
+                            // Clean bullets
+                            const clean = nextLine.replace(/^[·•-]\s*/, '');
+                            if (clean) descriptionLines.push(clean);
+                        }
+                        d++;
+                    }
+
+                    if (descriptionLines.length > 0) {
+                        description = descriptionLines.join('\n');
+                    }
+
                     items.push({
                         start: startDate,
                         end: endDate,
                         label: company ? `${role} at ${company}` : role,
-                        category: "Work"
+                        category: "Work",
+                        description: description
                     });
                 }
             }
@@ -194,11 +261,43 @@ export const parseLinkedInPDF = async (file: File): Promise<TimelineItem[]> => {
                         school = lines[cursor];
                     }
 
+                    // Extract Description for Education too (e.g. Activities)
+                    let description = "";
+                    let d = i + 1;
+                    const descriptionLines: string[] = [];
+
+                    while (d < lines.length) {
+                        const nextLine = lines[d].trim();
+                        if (
+                            nextLine.match(dateRangeRegex) ||
+                            nextLine.match(/^E[xs]p?erien[cz](e|a)$/i) ||
+                            nextLine.match(/^Ed?ucation$/i) ||
+                            nextLine.match(/^Formazione$/i) ||
+                            nextLine.match(/^Competenze|Skills$/i)
+                        ) {
+                            break;
+                        }
+
+                        // Education descriptions are usually short "Activities:"
+                        // Heuristic: if line is start of next education item (School name?), break?
+                        // Hard to detect school name without bold font info.
+                        // But usually checks against DateRegex is enough for next item if formatted consistently.
+
+                        const clean = nextLine.replace(/^[·•-]\s*/, '');
+                        if (clean) descriptionLines.push(clean);
+                        d++;
+                    }
+
+                    if (descriptionLines.length > 0) {
+                        description = descriptionLines.join('\n');
+                    }
+
                     items.push({
                         start: startDate,
                         end: endDate,
                         label: school ? `${degree} at ${school}` : degree,
-                        category: "Education"
+                        category: "Education",
+                        description: description
                     });
                 }
             }

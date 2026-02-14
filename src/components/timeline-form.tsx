@@ -14,6 +14,7 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
     Select,
     SelectContent,
@@ -27,6 +28,7 @@ const formSchema = z.object({
     end: z.string().nullable().optional(),
     label: z.string().min(1, { message: "Label is required" }),
     category: z.string(),
+    description: z.string().optional(),
 });
 
 interface TimelineFormProps {
@@ -43,6 +45,7 @@ export function TimelineForm({ onSubmit, defaultValues, submitLabel = "Add Timel
             end: defaultValues?.end || "",
             label: defaultValues?.label || "",
             category: defaultValues?.category || "default",
+            description: defaultValues?.description || "",
         },
     });
 
@@ -57,6 +60,7 @@ export function TimelineForm({ onSubmit, defaultValues, submitLabel = "Add Timel
             end: values.end || null,
             label: values.label,
             category: values.category,
+            description: values.description,
         });
         // Only reset if NOT editing (no defaultValues provided) or if explicitly desired.
         // Usually in a modal, we close the modal, so reset might not matter, 
@@ -142,6 +146,20 @@ export function TimelineForm({ onSubmit, defaultValues, submitLabel = "Add Timel
                                         <SelectItem value="sit">Purple</SelectItem>
                                     </SelectContent>
                                 </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                            <FormItem className="col-span-1 md:col-span-2">
+                                <FormLabel>Description</FormLabel>
+                                <FormControl>
+                                    <Textarea placeholder="Details about this event..." className="resize-y" {...field} />
+                                </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}

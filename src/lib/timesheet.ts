@@ -155,6 +155,8 @@ export class Timesheet {
                 gridColumnStart: startColumn,
                 gridColumnSpan: durationMonths,
                 class: 'bubble bubble-' + (cur.type || 'default'),
+                type: cur.type, // Added type/category to bubble model
+                description: cur.description,
                 duration: cur.end ? Math.round((cur.end.date.getTime() - cur.start.date.getTime()) / 1000 / 60 / 60 / 24 / 39).toString() : '',
                 dateLabel: bubble.getDateLabel(), // Reusing Bubble for formatting
                 label: cur.label

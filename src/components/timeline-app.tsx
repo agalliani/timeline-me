@@ -9,64 +9,82 @@ import { TimelineVertical } from "@/components/timeline-vertical";
 // import { TimelineForm } from "@/components/timeline-form"; // Moved to Modal
 import { TimelineModal } from "@/components/timeline-modal";
 import { LinkedInImportModal } from "@/components/linkedin-import-modal";
+import { ColorSettingsModal } from "@/components/color-settings-modal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Share2, Download, Trash2, Plus, Upload } from "lucide-react";
+import { Share2, Download, Trash2, Plus, Upload, Palette } from "lucide-react";
 import { toast } from "sonner";
 
 export function TimelineApp() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [data, setData] = useState<TimelineItem[]>([]);
+    const [colorMap, setColorMap] = useState<Record<string, string>>({});
+
     const [viewMode, setViewMode] = useState<'vertical' | 'horizontal'>('vertical');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+    const [isColorModalOpen, setIsColorModalOpen] = useState(false);
     const [selectedEventIndex, setSelectedEventIndex] = useState<number | null>(null);
     const timelineRef = useRef<HTMLDivElement>(null);
 
-    // Load from URL on mount
+    // Load from URL and LocalStorage on mount
     useEffect(() => {
+        // Load Data from URL or Fallback
         const dataParam = searchParams.get("data");
         if (dataParam) {
             try {
                 // Robust decoding for UTF-8 Support
                 const decoded = decodeURIComponent(escape(atob(dataParam)));
                 const parsed = JSON.parse(decoded);
-                if (Array.isArray(parsed)) {
-                    setData(parsed);
-                }
+                if (Array.isArray(parsed)) setData(parsed);
             } catch (e) {
                 console.error("Failed to parse timeline data from URL", e);
-                // Fallback for legacy simple btoa if needed, or just fail safely
+            }
+        } else {
+            // Load from LocalStorage if no URL param
+            const saved = localStorage.getItem("timeline-data");
+            if (saved) {
                 try {
-                    const simpleDecoded = atob(dataParam);
-                    const parsed = JSON.parse(simpleDecoded);
-                    if (Array.isArray(parsed)) {
-                        setData(parsed);
-                    }
-                } catch (e2) {
-                    console.error("Fallback parsing failed", e2);
+                    setData(JSON.parse(saved));
+                } catch (e) {
+                    console.error("Failed to parse local storage", e);
                 }
             }
         }
-    }, [searchParams]);
 
-    // Update URL when data changes? 
-    // Maybe better to only update when user clicks "Share"? 
-    // User UC: "User clicks Copy Share Link -> System encodes state".
-    // So we don't need to sync URL on every change, only read on load.
+        // Load Color Map from LocalStorage
+        const savedColors = localStorage.getItem("timeline-colors");
+        if (savedColors) {
+            try {
+                setColorMap(JSON.parse(savedColors));
+            } catch (e) {
+                console.error("Failed to parse saved colors", e);
+            }
+        }
+    }, [searchParams]);
 
     const saveToLocalStorage = (items: TimelineItem[]) => {
         localStorage.setItem("timeline-data", JSON.stringify(items));
     };
 
+    const saveColors = (newMap: Record<string, string>) => {
+        setColorMap(newMap);
+        localStorage.setItem("timeline-colors", JSON.stringify(newMap));
+        toast.success("Color settings saved!");
+    };
+
     const handleAdd = () => {
         setSelectedEventIndex(null);
+        setIsImportModalOpen(false); // Close other modals
+        setIsColorModalOpen(false);
         setIsModalOpen(true);
     };
 
     const handleEdit = (index: number) => {
         setSelectedEventIndex(index);
+        setIsImportModalOpen(false); // Close other modals
+        setIsColorModalOpen(false);
         setIsModalOpen(true);
     };
 
@@ -98,146 +116,112 @@ export function TimelineApp() {
     };
 
     const handleImport = (items: TimelineItem[]) => {
-        // Merge with existing data
-        const newData = [...data, ...items];
-        // Deduplicate? For now, just let user delete duplicates if any
-
-        // Auto-Sort
-        newData.sort((a, b) => a.start.localeCompare(b.start));
-
+        // Merge strategy: Append and Sort
+        const newData = [...data, ...items].sort((a, b) => a.start.localeCompare(b.start));
         setData(newData);
         saveToLocalStorage(newData);
+        setIsImportModalOpen(false);
         toast.success(`Imported ${items.length} events from LinkedIn!`);
     };
 
-    // Load from LocalStorage on mount if URL is empty
-    useEffect(() => {
-        if (!searchParams.get("data")) {
-            const saved = localStorage.getItem("timeline-data");
-            if (saved) {
-                try {
-                    setData(JSON.parse(saved));
-                } catch (e) {
-                    console.error("Failed to parse local storage", e);
-                }
-            }
+    const handleClear = () => {
+        if (confirm("Are you sure you want to clear all timeline data?")) {
+            setData([]);
+            saveToLocalStorage([]);
+            toast.success("Timeline cleared!");
         }
-    }, [searchParams]);
+    };
 
     const handleShare = () => {
-        if (data.length === 0) return;
-        try {
-            const json = JSON.stringify(data);
-            // Robust encoding for UTF-8 (emojis etc)
-            const encoded = btoa(unescape(encodeURIComponent(json)));
-            const url = `${window.location.origin}${window.location.pathname}?data=${encoded}`;
-            navigator.clipboard.writeText(url).then(() => {
-                toast.success("Link copied to clipboard!");
-            });
-        } catch (e) {
-            console.error("Failed to share", e);
-            toast.error("Failed to generate share link");
+        const json = JSON.stringify(data);
+        const encoded = btoa(unescape(encodeURIComponent(json)));
+        const url = `${window.location.origin}${window.location.pathname}?data=${encoded}`;
+
+        navigator.clipboard.writeText(url);
+        toast.success("Share link copied to clipboard!");
+    };
+
+    const handleScreenshot = async () => {
+        if (timelineRef.current) {
+            try {
+                // Small delay to ensure rendering
+                await new Promise(r => setTimeout(r, 100));
+
+                const dataUrl = await toPng(timelineRef.current, {
+                    cacheBust: true,
+                    backgroundColor: '#1c1917', // Dark background for consistency
+                    width: timelineRef.current.scrollWidth,
+                    height: timelineRef.current.scrollHeight,
+                    style: {
+                        overflow: 'visible',
+                        maxHeight: 'none',
+                        maxWidth: 'none',
+                    }
+                });
+                const link = document.createElement('a');
+                link.download = 'my-timeline.png';
+                link.href = dataUrl;
+                link.click();
+                toast.success("Timeline image downloaded!");
+            } catch (err) {
+                console.error(err);
+                toast.error("Failed to generate image.");
+            }
         }
     };
 
-    const handleSaveImage = async () => {
-        if (!timelineRef.current) return;
-        try {
-            // Small delay to ensure rendering
-            await new Promise(r => setTimeout(r, 100));
-
-            const element = timelineRef.current;
-            const dataUrl = await toPng(element, {
-                cacheBust: true,
-                backgroundColor: "#1c1917",
-                width: element.scrollWidth,
-                height: element.scrollHeight,
-                style: {
-                    overflow: 'visible', // Ensure full capture
-                    maxHeight: 'none',
-                    maxWidth: 'none',
-                }
-            });
-
-            const link = document.createElement("a");
-            link.href = dataUrl;
-            link.download = "my-timeline.png";
-            link.click();
-            toast.success("Timeline image saved!");
-        } catch (e) {
-            console.error("Failed to save image", e);
-            toast.error("Failed to save image");
-        }
-    };
+    // Extract unique categories for settings
+    const uniqueCategories = Array.from(new Set(data.map(d => d.category || "Uncategorized"))).sort();
 
     return (
-        <div className="space-y-8">
-            {/* Header / Intro */}
-            <div className="text-center space-y-4">
-                <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">
-                    TiMe!
-                </h1>
-                <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                    Create a beautiful timeline of your life events: career, books, travels, and more.
-                </p>
-            </div>
-
-            {/* Visualization and Controls */}
-            <div className="space-y-4">
-                <div className="flex justify-between items-center bg-card border-border/50 p-4 rounded-lg border shadow-sm flex-wrap gap-4">
-                    <div className="flex items-center gap-2">
-                        <Button onClick={handleAdd} className="gap-2">
-                            <Plus className="h-4 w-4" /> Add Event
-                        </Button>
-                        <Button variant="outline" onClick={() => setIsImportModalOpen(true)} className="gap-2">
-                            <Upload className="h-4 w-4" /> Import LinkedIn
-                        </Button>
-                    </div>
-
-                    <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg">
-                        <Button
-                            variant={viewMode === 'vertical' ? 'default' : 'ghost'}
-                            size="sm"
-                            onClick={() => setViewMode('vertical')}
-                            className="h-8"
-                        >
+        <div className="w-full max-w-6xl mx-auto space-y-6">
+            {/* Toolbar */}
+            <Card className="bg-background/60 backdrop-blur-xl border-white/20 shadow-sm sticky top-4 z-50">
+                <CardContent className="p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+                        <Button onClick={() => setViewMode('vertical')} variant={viewMode === 'vertical' ? 'default' : 'outline'} size="sm">
                             Vertical
                         </Button>
-                        <Button
-                            variant={viewMode === 'horizontal' ? 'default' : 'ghost'}
-                            size="sm"
-                            onClick={() => setViewMode('horizontal')}
-                            className="h-8"
-                        >
+                        <Button onClick={() => setViewMode('horizontal')} variant={viewMode === 'horizontal' ? 'default' : 'outline'} size="sm">
                             Horizontal
                         </Button>
                     </div>
 
-                    <div className="flex gap-2">
-                        <Button variant="outline" size="sm" onClick={handleSaveImage} disabled={data.length === 0}>
-                            <Download className="mr-2 h-4 w-4" /> Save Image
+                    <div className="flex gap-2 w-full md:w-auto flex-wrap justify-end">
+                        <Button onClick={() => { setIsModalOpen(false); setIsImportModalOpen(false); setIsColorModalOpen(true); }} variant="outline" size="sm" className="gap-2">
+                            <Palette className="w-4 h-4" /> Colors
                         </Button>
-                        <Button variant="secondary" size="sm" onClick={handleShare} disabled={data.length === 0}>
-                            <Share2 className="mr-2 h-4 w-4" /> Share
+                        <Button onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(true); }} variant="outline" size="sm" className="gap-2">
+                            <Upload className="w-4 h-4" /> Import LinkedIn
+                        </Button>
+                        <Button onClick={handleAdd} size="sm" className="gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white border-0 shadow-md">
+                            <Plus className="w-4 h-4" /> Add Event
+                        </Button>
+                        <Button onClick={handleShare} variant="secondary" size="icon" title="Share URL">
+                            <Share2 className="w-4 h-4" />
+                        </Button>
+                        <Button onClick={handleScreenshot} variant="secondary" size="icon" title="Download Image">
+                            <Download className="w-4 h-4" />
+                        </Button>
+                        <Button onClick={handleClear} variant="ghost" size="icon" className="text-destructive hover:text-destructive/90" title="Clear All">
+                            <Trash2 className="w-4 h-4" />
                         </Button>
                     </div>
-                </div>
+                </CardContent>
+            </Card>
 
-                {/* Timeline rendering based on viewMode */}
-
+            {/* Main Content */}
+            <div ref={timelineRef} className="p-1 rounded-xl transition-all duration-300">
                 {viewMode === 'vertical' ? (
-                    <div ref={timelineRef} className="bg-background p-4 rounded-lg">
-                        <TimelineVertical
-                            data={data}
-                            onEdit={handleEdit}
-                        />
-                    </div>
+                    <TimelineVertical
+                        data={data}
+                        colorMap={colorMap}
+                        onEdit={handleEdit}
+                    />
                 ) : (
                     <TimelineDisplay
-                        ref={timelineRef}
                         data={data}
-                        minYear={data.length > 0 ? undefined : 2020}
-                        maxYear={data.length > 0 ? undefined : 2026}
+                        colorMap={colorMap}
                         onEdit={handleEdit}
                     />
                 )}
@@ -246,8 +230,9 @@ export function TimelineApp() {
             <TimelineModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                onSubmit={handleSave}
-                initialData={selectedEventIndex !== null ? data[selectedEventIndex] : null}
+                onSave={handleSave}
+                initialData={selectedEventIndex !== null ? data[selectedEventIndex] : undefined}
+                onDelete={selectedEventIndex !== null ? () => handleDelete(selectedEventIndex!) : undefined}
             />
 
             <LinkedInImportModal
@@ -256,44 +241,13 @@ export function TimelineApp() {
                 onImport={handleImport}
             />
 
-            {/* List View for easier management */}
-            {data.length > 0 && (
-                <Card>
-                    <CardContent className="pt-6">
-                        <h3 className="text-lg font-semibold mb-4">Your Events</h3>
-                        <div className="space-y-2">
-                            {data.map((item, index) => (
-                                <div
-                                    key={index}
-                                    className="flex items-center justify-between p-3 border rounded-md hover:bg-muted/50 transition-colors cursor-pointer"
-                                    onClick={() => handleEdit(index)}
-                                >
-                                    <div>
-                                        <span className="font-medium">{item.label}</span>
-                                        <span className="text-sm text-zinc-500 dark:text-zinc-400 ml-2">
-                                            ({item.start} {item.end ? `- ${item.end}` : ""})
-                                        </span>
-                                        <span className="text-xs ml-2 px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground text-capitalize">
-                                            {item.category}
-                                        </span>
-                                    </div>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleDelete(index);
-                                        }}
-                                        className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            ))}
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
+            <ColorSettingsModal
+                isOpen={isColorModalOpen}
+                onClose={() => setIsColorModalOpen(false)}
+                categories={uniqueCategories}
+                colorMap={colorMap}
+                onSave={saveColors}
+            />
         </div>
     );
 }
