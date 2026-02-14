@@ -15,6 +15,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Share2, Download, Trash2, Plus, Upload, Palette } from "lucide-react";
 import { toast } from "sonner";
 
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Menu } from "lucide-react";
+
 export function TimelineApp() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -175,9 +185,9 @@ export function TimelineApp() {
 
     return (
         <div className="w-full max-w-6xl mx-auto space-y-6">
-            {/* Toolbar */}
-            <Card className="bg-background/60 backdrop-blur-xl border-white/20 shadow-sm sticky top-4 z-50">
-                <CardContent className="p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+
+            < Card className="bg-background/60 backdrop-blur-xl border-white/20 shadow-sm sticky top-4 z-50">
+                <CardContent className="p-4 flex flex-wrap gap-4 items-center justify-between">
                     <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
                         <Button onClick={() => setViewMode('vertical')} variant={viewMode === 'vertical' ? 'default' : 'outline'} size="sm">
                             Vertical
@@ -187,25 +197,64 @@ export function TimelineApp() {
                         </Button>
                     </div>
 
-                    <div className="flex gap-2 w-full md:w-auto flex-wrap justify-end">
-                        <Button onClick={() => { setIsModalOpen(false); setIsImportModalOpen(false); setIsColorModalOpen(true); }} variant="outline" size="sm" className="gap-2">
-                            <Palette className="w-4 h-4" /> Colors
-                        </Button>
-                        <Button onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(true); }} variant="outline" size="sm" className="gap-2">
-                            <Upload className="w-4 h-4" /> Import LinkedIn
-                        </Button>
-                        <Button onClick={handleAdd} size="sm" className="gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white border-0 shadow-md">
-                            <Plus className="w-4 h-4" /> Add Event
-                        </Button>
-                        <Button onClick={handleShare} variant="secondary" size="icon" title="Share URL">
-                            <Share2 className="w-4 h-4" />
-                        </Button>
-                        <Button onClick={handleScreenshot} variant="secondary" size="icon" title="Download Image">
-                            <Download className="w-4 h-4" />
-                        </Button>
-                        <Button onClick={handleClear} variant="ghost" size="icon" className="text-destructive hover:text-destructive/90" title="Clear All">
-                            <Trash2 className="w-4 h-4" />
-                        </Button>
+                    <div className="flex gap-2 w-full md:w-auto justify-end">
+                        {/* Desktop View: Full Actions */}
+                        <div className="hidden md:flex gap-2 items-center">
+                            <Button onClick={() => { setIsModalOpen(false); setIsImportModalOpen(false); setIsColorModalOpen(true); }} variant="outline" size="sm" className="gap-2">
+                                <Palette className="w-4 h-4" /> Colors
+                            </Button>
+                            <Button onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(true); }} variant="outline" size="sm" className="gap-2">
+                                <Upload className="w-4 h-4" /> Import LinkedIn
+                            </Button>
+                            <Button onClick={handleAdd} size="sm" className="gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white border-0 shadow-md">
+                                <Plus className="w-4 h-4" /> Add Event
+                            </Button>
+                            <Button onClick={handleShare} variant="secondary" size="icon" title="Share URL">
+                                <Share2 className="w-4 h-4" />
+                            </Button>
+                            <Button onClick={handleScreenshot} variant="secondary" size="icon" title="Download Image">
+                                <Download className="w-4 h-4" />
+                            </Button>
+                            <Button onClick={handleClear} variant="ghost" size="icon" className="text-destructive hover:text-destructive/90" title="Clear All">
+                                <Trash2 className="w-4 h-4" />
+                            </Button>
+                        </div>
+
+                        {/* Mobile View: Compact Actions */}
+                        <div className="flex md:hidden gap-2 items-center w-full justify-between">
+                            <Button onClick={handleAdd} size="sm" className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0 shadow-md">
+                                <Plus className="w-4 h-4 mr-2" /> Add Event
+                            </Button>
+
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="outline" size="icon">
+                                        <Menu className="w-4 h-4" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-56">
+                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem onClick={() => { setIsModalOpen(false); setIsImportModalOpen(false); setIsColorModalOpen(true); }}>
+                                        <Palette className="w-4 h-4 mr-2" /> Colors
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(true); }}>
+                                        <Upload className="w-4 h-4 mr-2" /> Import LinkedIn
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem onClick={handleShare}>
+                                        <Share2 className="w-4 h-4 mr-2" /> Share Link
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={handleScreenshot}>
+                                        <Download className="w-4 h-4 mr-2" /> Download Image
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem onClick={handleClear} className="text-destructive focus:text-destructive">
+                                        <Trash2 className="w-4 h-4 mr-2" /> Clear All Data
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
                     </div>
                 </CardContent>
             </Card>
@@ -248,6 +297,6 @@ export function TimelineApp() {
                 colorMap={colorMap}
                 onSave={saveColors}
             />
-        </div>
+        </div >
     );
 }

@@ -20,9 +20,14 @@ interface TimelineVerticalProps {
 }
 
 // Constants
-const PIXELS_PER_MONTH = 32; // Reduced from 60 for compactness
-const MIN_EVENT_HEIGHT = 36; // Minimum height in pixels
+const PIXELS_PER_MONTH = 24; // Reduced to 24 for maximum compactness
+const MIN_EVENT_HEIGHT = 28; // Reduced min height
 const HEADER_HEIGHT = 40;
+
+// Auto-Color Palette for Columns (when no category color is set)
+const AUTO_COLORS = [
+    'blue', 'emerald', 'violet', 'amber', 'cyan', 'rose', 'indigo', 'teal'
+];
 
 export function TimelineVertical({ data, className, colorMap = {}, onEdit }: TimelineVerticalProps) {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -169,8 +174,18 @@ export function TimelineVertical({ data, className, colorMap = {}, onEdit }: Tim
     }, [minDateValue, totalHeight]);
 
 
-    const getCategoryClasses = (category: string) => {
-        const colorName = colorMap[category] || 'slate';
+    // Helper to get color (Category > Auto-Column > Default)
+    const getColorForEvent = (category: string, colIndex: number): string => {
+        // 1. Check if user set a specific color for this category
+        if (colorMap[category] && colorMap[category] !== 'default') {
+            return colorMap[category];
+        }
+        // 2. Fallback to Auto-Color based on Column Index
+        return AUTO_COLORS[colIndex % AUTO_COLORS.length];
+    };
+
+    const getCategoryClasses = (category: string, colIndex: number) => {
+        const colorName = getColorForEvent(category, colIndex);
         switch (colorName) {
             case 'red': return 'bg-red-50 border-red-500 text-red-900 group-hover:bg-red-100 dark:bg-red-950/30 dark:border-red-500 dark:text-red-100';
             case 'orange': return 'bg-orange-50 border-orange-500 text-orange-900 group-hover:bg-orange-100 dark:bg-orange-950/30 dark:border-orange-500 dark:text-orange-100';
@@ -193,8 +208,8 @@ export function TimelineVertical({ data, className, colorMap = {}, onEdit }: Tim
         }
     };
 
-    const getTooltipCategoryStyle = (category: string) => {
-        const colorName = colorMap[category] || 'slate';
+    const getTooltipCategoryStyle = (category: string, colIndex: number) => {
+        const colorName = getColorForEvent(category, colIndex);
         switch (colorName) {
             case 'red': return 'border-red-500 text-red-700 bg-red-50 dark:text-red-300 dark:bg-red-900/10';
             case 'orange': return 'border-orange-500 text-orange-700 bg-orange-50 dark:text-orange-300 dark:bg-orange-900/10';
@@ -263,21 +278,23 @@ export function TimelineVertical({ data, className, colorMap = {}, onEdit }: Tim
                         {/* The content area offset by the time labels width */}
 
                         {events.map((event, i) => {
-                            const isSmall = event.height < 50;
+                            const isSmall = event.height < 40;
 
                             return (
                                 <Tooltip key={i}>
                                     <TooltipTrigger asChild>
                                         <div
                                             className={cn(
-                                                "absolute rounded-md border-l-[6px] px-2 py-1 transition-all duration-200 cursor-pointer overflow-hidden group shadow-sm hover:shadow-md hover:z-50 hover:scale-[1.01] hover:translate-x-1 flex flex-col justify-center",
-                                                getCategoryClasses(event.category)
+                                                "absolute rounded-md border-l-[6px] px-2 py-1 transition-all duration-300 cursor-pointer overflow-hidden group shadow-sm hover:shadow-md hover:z-50 hover:scale-[1.02] hover:translate-x-1 flex flex-col justify-center animate-in fade-in zoom-in-95 slide-in-from-bottom-2",
+                                                getCategoryClasses(event.category, event.colIndex)
                                             )}
                                             style={{
                                                 top: event.top,
                                                 height: event.height - 4, // Gap
                                                 left: `calc((100% / ${event.totalColumns}) * ${event.colIndex})`,
                                                 width: `calc((100% / ${event.totalColumns}) - 12px)`, // Subtract gap
+                                                animationDelay: `${i * 50}ms`, // Staggered animation
+                                                animationFillMode: 'both'
                                             }}
                                             onClick={() => onEdit?.(event.originalIndex)}
                                         >
@@ -291,13 +308,13 @@ export function TimelineVertical({ data, className, colorMap = {}, onEdit }: Tim
                                         </div>
                                     </TooltipTrigger>
                                     <TooltipContent side="right" align="start" className="p-0 border-none bg-transparent shadow-xl z-50">
-                                        <Card className={cn("w-72 border-l-4", getTooltipCategoryStyle(event.category).split(' ')[0])}>
+                                        <Card className={cn("w-72 border-l-4", getTooltipCategoryStyle(event.category, event.colIndex).split(' ')[0])}>
                                             <CardHeader className="p-4 pb-2 bg-muted/5">
                                                 <CardTitle className="text-base leading-snug">{event.label}</CardTitle>
                                             </CardHeader>
                                             <CardContent className="p-4 pt-3 text-sm space-y-3">
                                                 <div className="flex items-center justify-between">
-                                                    <Badge variant="outline" className={cn("text-xs uppercase tracking-wide font-medium", getTooltipCategoryStyle(event.category))}>
+                                                    <Badge variant="outline" className={cn("text-xs uppercase tracking-wide font-medium", getTooltipCategoryStyle(event.category, event.colIndex))}>
                                                         {event.category}
                                                     </Badge>
                                                     <span className="text-xs text-muted-foreground font-mono">
