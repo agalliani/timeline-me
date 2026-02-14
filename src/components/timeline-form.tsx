@@ -35,9 +35,10 @@ interface TimelineFormProps {
     onSubmit: (data: TimelineItem) => void;
     defaultValues?: TimelineItem;
     submitLabel?: string;
+    onDelete?: () => void;
 }
 
-export function TimelineForm({ onSubmit, defaultValues, submitLabel = "Add Timeline Event" }: TimelineFormProps) {
+export function TimelineForm({ onSubmit, defaultValues, submitLabel = "Add Timeline Event", onDelete }: TimelineFormProps) {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -166,8 +167,19 @@ export function TimelineForm({ onSubmit, defaultValues, submitLabel = "Add Timel
                     />
                 </div>
 
-                <div className="flex justify-end">
-                    <Button type="submit">{submitLabel}</Button>
+                <div className="flex justify-between items-center">
+                    {onDelete && (
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            onClick={onDelete}
+                        >
+                            Delete Event
+                        </Button>
+                    )}
+                    <div className="flex-1 flex justify-end">
+                        <Button type="submit">{submitLabel}</Button>
+                    </div>
                 </div>
             </form>
         </Form>

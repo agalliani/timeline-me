@@ -14,9 +14,10 @@ interface TimelineModalProps {
     onClose: () => void;
     onSubmit: (data: TimelineItem) => void;
     initialData?: TimelineItem | null;
+    onDelete?: () => void;
 }
 
-export function TimelineModal({ isOpen, onClose, onSubmit, initialData }: TimelineModalProps) {
+export function TimelineModal({ isOpen, onClose, onSubmit, initialData, onDelete }: TimelineModalProps) {
     // We need to force re-render form when initialData changes to update defaultValues
     // The key={initialData ? 'edit' : 'add'} trick is simple but effective.
     // Or better, key={JSON.stringify(initialData)}
@@ -46,6 +47,12 @@ export function TimelineModal({ isOpen, onClose, onSubmit, initialData }: Timeli
                     }}
                     defaultValues={initialData || undefined}
                     submitLabel={initialData ? "Save Changes" : "Add Event"}
+                    onDelete={onDelete ? () => {
+                        if (confirm("Are you sure you want to delete this event?")) {
+                            onDelete();
+                            onClose();
+                        }
+                    } : undefined}
                 />
             </DialogContent>
         </Dialog>

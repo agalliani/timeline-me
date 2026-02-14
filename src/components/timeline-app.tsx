@@ -230,7 +230,7 @@ export function TimelineApp() {
             <TimelineModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                onSave={handleSave}
+                onSubmit={handleSave}
                 initialData={selectedEventIndex !== null ? data[selectedEventIndex] : undefined}
                 onDelete={selectedEventIndex !== null ? () => handleDelete(selectedEventIndex!) : undefined}
             />
