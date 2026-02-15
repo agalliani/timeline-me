@@ -14,14 +14,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Andrea Galliani | Interactive Timeline",
-  description: "Explore the professional journey, milestones, and projects of Andrea Galliani through an interactive timeline. A visual history of software engineering experience.",
+  title: "Timeline Me - Visual Career Timeline",
+  description: "Visualize your LinkedIn profile as a stunning vertical timeline.",
   keywords: ["timeline", "portfolio", "Andrea Galliani", "software engineer", "developer", "projects", "interactive history"],
   openGraph: {
-    title: "Andrea Galliani | Interactive Timeline",
-    description: "Explore the professional journey and milestones of Andrea Galliani.",
+    title: "Timeline Me - Visual Timeline",
+    description: "Explore professional journeys in a visual vertical timeline.",
     url: "https://agalliani.github.io/timeline-me",
-    siteName: "Andrea Galliani Timeline",
+    siteName: "Timeline Me",
     locale: "en_US",
     type: "website",
   },
@@ -37,9 +37,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background text-foreground`}
       >
         {children}
         <Toaster />

@@ -2,15 +2,16 @@ import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { TimelineItem } from '@/types/timeline';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { CalendarIcon, Edit2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Slider } from "@/components/ui/slider";
+import { motion, AnimatePresence } from "framer-motion";
 import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
-} from "@/components/ui/tooltip"
+} from "@/components/ui/tooltip";
+import { CalendarIcon, Edit2, ZoomIn, ZoomOut } from 'lucide-react';
 
 interface TimelineVerticalProps {
     data: TimelineItem[];
@@ -19,12 +20,6 @@ interface TimelineVerticalProps {
     onEdit?: (index: number) => void;
 }
 
-// Constants
-// Constants
-const PIXELS_PER_MONTH = 6; // Increased slightly from 2.4 for better visibility
-const MIN_EVENT_HEIGHT = 12; // Adjusted for 6px density
-const HEADER_HEIGHT = 40;
-
 // Auto-Color Palette for Columns (when no category color is set)
 const AUTO_COLORS = [
     'blue', 'emerald', 'violet', 'amber', 'cyan', 'rose', 'indigo', 'teal'
@@ -32,31 +27,27 @@ const AUTO_COLORS = [
 
 export function TimelineVertical({ data, className, colorMap = {}, onEdit }: TimelineVerticalProps) {
     const containerRef = useRef<HTMLDivElement>(null);
-    const [containerWidth, setContainerWidth] = useState(0);
 
-    useEffect(() => {
-        if (!containerRef.current) return;
-        const resizeObserver = new ResizeObserver((entries) => {
-            for (const entry of entries) {
-                setContainerWidth(entry.contentRect.width);
-            }
-        });
-        resizeObserver.observe(containerRef.current);
-        return () => resizeObserver.disconnect();
-    }, []);
+    // Zoom State: Pixels per Month (Range 1 to 24)
+    // Default 6 for balanced view
+    const [pixelsPerMonth, setPixelsPerMonth] = useState([6]);
+    const currentDensity = pixelsPerMonth[0];
 
-    // 1. Parse Dates and Layout Logic
-    const { events, totalHeight, minDateValue } = useMemo(() => {
-        if (!data || data.length === 0) return { events: [], totalHeight: 0, minDateValue: 0 };
+    // Dynamic thresholds
+    const isCompactMode = currentDensity < 8;
+    const isMicroMode = currentDensity < 4;
 
-        // Helper: Parse YYYY-MM to integer (Total Months)
+    // 1. Parsing & Layout Logic (Memoized)
+    const { events, totalHeight, minDateValue, gridLines } = useMemo(() => {
+        if (!data || data.length === 0) return { events: [], totalHeight: 0, minDateValue: 0, gridLines: [] };
+
         const getMonthValue = (dateStr: string | null) => {
             if (!dateStr) return 0;
             let year = 0, month = 0;
             if (dateStr.includes('-')) {
                 const parts = dateStr.split('-');
                 year = parseInt(parts[0]);
-                month = parts[1] ? parseInt(parts[1]) - 1 : 0; // 0-indexed month
+                month = parts[1] ? parseInt(parts[1]) - 1 : 0;
             } else if (dateStr.includes('/')) {
                 const parts = dateStr.split('/');
                 if (parts[0].length === 4) {
@@ -75,37 +66,36 @@ export function TimelineVertical({ data, className, colorMap = {}, onEdit }: Tim
         const parsedEvents = data.map((item, index) => {
             const startVal = getMonthValue(item.start);
             const endVal = item.end ? getMonthValue(item.end) : startVal;
+            // Min duration 1 month for visibility
+            let duration = Math.max(endVal - startVal, 1);
+
             return {
                 ...item,
                 originalIndex: index,
                 startVal,
-                endVal: Math.max(endVal, startVal), // Ensure end >= start
-                duration: Math.max(endVal - startVal, 0.5) // Min duration 0.5 month
+                endVal: Math.max(endVal, startVal),
+                duration
             };
         });
 
-        if (parsedEvents.length === 0) return { events: [], totalHeight: 0, minDateValue: 0 };
+        if (parsedEvents.length === 0) return { events: [], totalHeight: 0, minDateValue: 0, gridLines: [] };
 
-        // Determine Min/Max for the Container
+        // Bounds
         let minVal = Math.min(...parsedEvents.map(e => e.startVal));
         let maxVal = Math.max(...parsedEvents.map(e => e.endVal));
 
-        // Pad the timeline a bit
-        minVal -= 2;
-        maxVal += 4; // Extra padding at bottom
+        minVal -= 6;
+        maxVal += 6;
 
         const totalMonths = maxVal - minVal;
-        const totalPx = totalMonths * PIXELS_PER_MONTH;
+        const totalPx = totalMonths * currentDensity;
 
-        // --- Column Packing Algorithm ---
-        // 1. Sort by Start Time
-        parsedEvents.sort((a, b) => a.startVal - b.startVal || (b.endVal - a.endVal)); // Longest first if starts same
+        // --- Column Packing (Multi-track) ---
+        parsedEvents.sort((a, b) => a.startVal - b.startVal || (b.endVal - a.endVal));
 
-        // 2. Assign columns
         const columns: { endVal: number }[] = [];
         const positionedEvents = parsedEvents.map(event => {
             let colIndex = -1;
-            // Find the first column where this event fits
             for (let i = 0; i < columns.length; i++) {
                 if (columns[i].endVal <= event.startVal) {
                     colIndex = i;
@@ -113,7 +103,6 @@ export function TimelineVertical({ data, className, colorMap = {}, onEdit }: Tim
                     break;
                 }
             }
-            // If no column fits, create a new one
             if (colIndex === -1) {
                 colIndex = columns.length;
                 columns.push({ endVal: event.endVal });
@@ -122,232 +111,219 @@ export function TimelineVertical({ data, className, colorMap = {}, onEdit }: Tim
             return {
                 ...event,
                 colIndex,
-                top: (event.startVal - minVal) * PIXELS_PER_MONTH,
-                height: Math.max(event.duration * PIXELS_PER_MONTH, MIN_EVENT_HEIGHT)
+                top: (event.startVal - minVal) * currentDensity,
+                height: Math.max(event.duration * currentDensity, currentDensity),
             };
         });
 
-        const maxColumns = columns.length;
+        const maxColumns = Math.max(columns.length, 1);
 
-        return {
-            events: positionedEvents.map(e => ({
-                ...e,
-                totalColumns: maxColumns
-            })),
-            totalHeight: totalPx,
-            minDateValue: minVal
-        };
-
-    }, [data]);
-
-    // Grid Generation
-    const gridLines = useMemo(() => {
-        if (!totalHeight) return [];
+        // --- Grid Generation ---
         const lines = [];
-        // Iterate months from minDateValue
-        // We need to inverse minDateValue back to Year/Month
-        const startYear = Math.floor(minDateValue / 12);
-        const startMonth = minDateValue % 12; // 0-11
+        const startYear = Math.floor(minVal / 12);
 
-        let currentMonth = startMonth;
-        let currentYear = startYear;
-        // Total months cover
-        const totalMonths = Math.ceil(totalHeight / PIXELS_PER_MONTH);
+        const totalYearsCovered = Math.ceil(totalMonths / 12) + 1;
 
-        for (let i = 0; i < totalMonths; i++) {
-            const isYearStart = currentMonth === 0;
-            const top = i * PIXELS_PER_MONTH;
+        for (let y = 0; y < totalYearsCovered; y++) {
+            const year = startYear + y;
+            const monthVal = year * 12;
 
-            lines.push({
-                top,
-                label: isYearStart ? `${currentYear}` : null,
-                isMajor: isYearStart,
-                monthName: new Date(currentYear, currentMonth).toLocaleString('default', { month: 'short' })
-            });
+            if (monthVal >= minVal && monthVal <= maxVal + 12) {
+                const top = (monthVal - minVal) * currentDensity;
+                lines.push({ top, label: year.toString(), type: 'year' });
 
-            currentMonth++;
-            if (currentMonth > 11) {
-                currentMonth = 0;
-                currentYear++;
+                if (currentDensity > 8) {
+                    for (let q = 1; q < 4; q++) {
+                        lines.push({
+                            top: top + (q * 3 * currentDensity),
+                            label: `Q${q + 1}`,
+                            type: 'quarter'
+                        });
+                    }
+                }
             }
         }
-        return lines;
-    }, [minDateValue, totalHeight]);
+
+        return {
+            events: positionedEvents.map(e => ({ ...e, totalColumns: maxColumns })),
+            totalHeight: totalPx,
+            minDateValue: minVal,
+            gridLines: lines
+        };
+
+    }, [data, currentDensity]);
 
 
-    // Helper to get color (Category > Auto-Column > Default)
     const getColorForEvent = (category: string, colIndex: number): string => {
-        // 1. Check if user set a specific color for this category
-        if (colorMap[category] && colorMap[category] !== 'default') {
-            return colorMap[category];
-        }
-        // 2. Fallback to Auto-Color based on Column Index
+        if (colorMap[category] && colorMap[category] !== 'default') return colorMap[category];
         return AUTO_COLORS[colIndex % AUTO_COLORS.length];
     };
 
-    const getCategoryClasses = (category: string, colIndex: number) => {
-        const colorName = getColorForEvent(category, colIndex);
-        switch (colorName) {
-            case 'red': return 'bg-red-50 border-red-500 text-red-900 group-hover:bg-red-100 dark:bg-red-950/30 dark:border-red-500 dark:text-red-100';
-            case 'orange': return 'bg-orange-50 border-orange-500 text-orange-900 group-hover:bg-orange-100 dark:bg-orange-950/30 dark:border-orange-500 dark:text-orange-100';
-            case 'amber': return 'bg-amber-50 border-amber-500 text-amber-900 group-hover:bg-amber-100 dark:bg-amber-950/30 dark:border-amber-500 dark:text-amber-100';
-            case 'yellow': return 'bg-yellow-50 border-yellow-500 text-yellow-900 group-hover:bg-yellow-100 dark:bg-yellow-950/30 dark:border-yellow-500 dark:text-yellow-100';
-            case 'lime': return 'bg-lime-50 border-lime-500 text-lime-900 group-hover:bg-lime-100 dark:bg-lime-950/30 dark:border-lime-500 dark:text-lime-100';
-            case 'green': return 'bg-green-50 border-green-500 text-green-900 group-hover:bg-green-100 dark:bg-green-950/30 dark:border-green-500 dark:text-green-100';
-            case 'emerald': return 'bg-emerald-50 border-emerald-500 text-emerald-900 group-hover:bg-emerald-100 dark:bg-emerald-950/30 dark:border-emerald-500 dark:text-emerald-100';
-            case 'teal': return 'bg-teal-50 border-teal-500 text-teal-900 group-hover:bg-teal-100 dark:bg-teal-950/30 dark:border-teal-500 dark:text-teal-100';
-            case 'cyan': return 'bg-cyan-50 border-cyan-500 text-cyan-900 group-hover:bg-cyan-100 dark:bg-cyan-950/30 dark:border-cyan-500 dark:text-cyan-100';
-            case 'sky': return 'bg-sky-50 border-sky-500 text-sky-900 group-hover:bg-sky-100 dark:bg-sky-950/30 dark:border-sky-500 dark:text-sky-100';
-            case 'blue': return 'bg-blue-50 border-blue-500 text-blue-900 group-hover:bg-blue-100 dark:bg-blue-950/30 dark:border-blue-500 dark:text-blue-100';
-            case 'indigo': return 'bg-indigo-50 border-indigo-500 text-indigo-900 group-hover:bg-indigo-100 dark:bg-indigo-950/30 dark:border-indigo-500 dark:text-indigo-100';
-            case 'violet': return 'bg-violet-50 border-violet-500 text-violet-900 group-hover:bg-violet-100 dark:bg-violet-950/30 dark:border-violet-500 dark:text-violet-100';
-            case 'purple': return 'bg-purple-50 border-purple-500 text-purple-900 group-hover:bg-purple-100 dark:bg-purple-950/30 dark:border-purple-500 dark:text-purple-100';
-            case 'fuchsia': return 'bg-fuchsia-50 border-fuchsia-500 text-fuchsia-900 group-hover:bg-fuchsia-100 dark:bg-fuchsia-950/30 dark:border-fuchsia-500 dark:text-fuchsia-100';
-            case 'pink': return 'bg-pink-50 border-pink-500 text-pink-900 group-hover:bg-pink-100 dark:bg-pink-950/30 dark:border-pink-500 dark:text-pink-100';
-            case 'rose': return 'bg-rose-50 border-rose-500 text-rose-900 group-hover:bg-rose-100 dark:bg-rose-950/30 dark:border-rose-500 dark:text-rose-100';
-            default: return 'bg-slate-50 border-slate-500 text-slate-900 group-hover:bg-slate-100 dark:bg-slate-800/50 dark:border-slate-500 dark:text-slate-100';
+    const getEventStyleClasses = (category: string, colIndex: number) => {
+        const color = getColorForEvent(category, colIndex);
+        switch (color) {
+            case 'red': return 'bg-red-500/20 border-red-500 text-red-100 hover:bg-red-500/30';
+            case 'blue': return 'bg-blue-500/20 border-blue-500 text-blue-100 hover:bg-blue-500/30';
+            case 'green': return 'bg-emerald-500/20 border-emerald-500 text-emerald-100 hover:bg-emerald-500/30';
+            case 'amber': return 'bg-amber-500/20 border-amber-500 text-amber-100 hover:bg-amber-500/30';
+            case 'purple': return 'bg-purple-500/20 border-purple-500 text-purple-100 hover:bg-purple-500/30';
+            case 'cyan': return 'bg-cyan-500/20 border-cyan-500 text-cyan-100 hover:bg-cyan-500/30';
+            case 'rose': return 'bg-rose-500/20 border-rose-500 text-rose-100 hover:bg-rose-500/30';
+            default: return 'bg-slate-500/20 border-slate-500 text-slate-100 hover:bg-slate-500/30';
         }
-    };
+    }
 
-    const getTooltipCategoryStyle = (category: string, colIndex: number) => {
-        const colorName = getColorForEvent(category, colIndex);
-        switch (colorName) {
-            case 'red': return 'border-red-500 text-red-700 bg-red-50 dark:text-red-300 dark:bg-red-900/10';
-            case 'orange': return 'border-orange-500 text-orange-700 bg-orange-50 dark:text-orange-300 dark:bg-orange-900/10';
-            case 'amber': return 'border-amber-500 text-amber-700 bg-amber-50 dark:text-amber-300 dark:bg-amber-900/10';
-            case 'yellow': return 'border-yellow-500 text-yellow-700 bg-yellow-50 dark:text-yellow-300 dark:bg-yellow-900/10';
-            case 'lime': return 'border-lime-500 text-lime-700 bg-lime-50 dark:text-lime-300 dark:bg-lime-900/10';
-            case 'green': return 'border-green-500 text-green-700 bg-green-50 dark:text-green-300 dark:bg-green-900/10';
-            case 'emerald': return 'border-emerald-500 text-emerald-700 bg-emerald-50 dark:text-emerald-300 dark:bg-emerald-900/10';
-            case 'teal': return 'border-teal-500 text-teal-700 bg-teal-50 dark:text-teal-300 dark:bg-teal-900/10';
-            case 'cyan': return 'border-cyan-500 text-cyan-700 bg-cyan-50 dark:text-cyan-300 dark:bg-cyan-900/10';
-            case 'sky': return 'border-sky-500 text-sky-700 bg-sky-50 dark:text-sky-300 dark:bg-sky-900/10';
-            case 'blue': return 'border-blue-500 text-blue-700 bg-blue-50 dark:text-blue-300 dark:bg-blue-900/10';
-            case 'indigo': return 'border-indigo-500 text-indigo-700 bg-indigo-50 dark:text-indigo-300 dark:bg-indigo-900/10';
-            case 'violet': return 'border-violet-500 text-violet-700 bg-violet-50 dark:text-violet-300 dark:bg-violet-900/10';
-            case 'purple': return 'border-purple-500 text-purple-700 bg-purple-50 dark:text-purple-300 dark:bg-purple-900/10';
-            case 'fuchsia': return 'border-fuchsia-500 text-fuchsia-700 bg-fuchsia-50 dark:text-fuchsia-300 dark:bg-fuchsia-900/10';
-            case 'pink': return 'border-pink-500 text-pink-700 bg-pink-50 dark:text-pink-300 dark:bg-pink-900/10';
-            case 'rose': return 'border-rose-500 text-rose-700 bg-rose-50 dark:text-rose-300 dark:bg-rose-900/10';
-            default: return 'border-slate-500 text-slate-700 bg-slate-50 dark:text-slate-300 dark:bg-slate-900/10';
+    const getTooltipDecorations = (category: string, colIndex: number) => {
+        const color = getColorForEvent(category, colIndex);
+        // Returns classes for the colored strip and badge
+        switch (color) {
+            case 'red': return { strip: 'bg-red-500', badge: 'text-red-400 border-red-500/30' };
+            case 'blue': return { strip: 'bg-blue-500', badge: 'text-blue-400 border-blue-500/30' };
+            case 'green': return { strip: 'bg-emerald-500', badge: 'text-emerald-400 border-emerald-500/30' };
+            case 'amber': return { strip: 'bg-amber-500', badge: 'text-amber-400 border-amber-500/30' };
+            case 'purple': return { strip: 'bg-purple-500', badge: 'text-purple-400 border-purple-500/30' };
+            case 'cyan': return { strip: 'bg-cyan-500', badge: 'text-cyan-400 border-cyan-500/30' };
+            case 'rose': return { strip: 'bg-rose-500', badge: 'text-rose-400 border-rose-500/30' };
+            default: return { strip: 'bg-slate-500', badge: 'text-slate-400 border-slate-500/30' };
         }
-    };
+    }
 
     if (!data || data.length === 0) {
         return (
-            <div className="text-center text-muted-foreground p-10 border border-dashed rounded-lg bg-muted/20">
-                No timeline data available.
+            <div className="flex flex-col items-center justify-center p-12 border border-dashed border-white/10 rounded-xl bg-white/5">
+                <p className="text-muted-foreground">Timeline is empty.</p>
             </div>
         );
     }
 
     return (
-        <TooltipProvider delayDuration={300}>
-            <div className={cn("relative w-full overflow-hidden select-none bg-background rounded-xl border shadow-sm", className)} ref={containerRef}>
+        <TooltipProvider delayDuration={0}>
+            <div className={cn("flex flex-col space-y-4", className)}>
 
-                <div className="relative w-full transition-all duration-500 ease-in-out" style={{ height: totalHeight }}>
-                    {/* Background Grid */}
-                    {gridLines.map((line, i) => (
-                        <div
-                            key={i}
-                            className={cn(
-                                "absolute w-full border-t flex items-start transition-opacity duration-300",
-                                line.isMajor ? "border-foreground/20 opacity-100" : "border-border/40 opacity-50"
-                            )}
-                            style={{ top: line.top }}
-                        >
-                            {/* Time Label */}
-                            <div className={cn(
-                                "w-20 md:w-28 shrink-0 pr-4 text-right pt-1 sticky left-0 z-20 flex justify-end items-center",
-                                line.isMajor ? "-mt-3.5" : "-mt-2"
-                            )}>
-                                {line.isMajor ? (
-                                    <span className="text-lg font-bold bg-background/95 backdrop-blur-sm px-2 py-0.5 rounded-md shadow-sm border border-border/50 text-foreground">
-                                        {line.label}
-                                    </span>
-                                ) : (
-                                    // Only show months if density allows
-                                    PIXELS_PER_MONTH > 10 ? (
-                                        <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70 bg-background/80 px-1 rounded-sm">
-                                            {line.monthName}
-                                        </span>
-                                    ) : null
+                {/* Control Bar */}
+                <div className="sticky top-4 z-40 bg-background/80 backdrop-blur-md border border-white/10 p-2 rounded-lg flex items-center gap-4 shadow-xl w-fit mx-auto lg:mx-0">
+                    <span className="text-[10px] items-center gap-1.5 uppercase tracking-wider font-mono text-muted-foreground hidden sm:flex">
+                        <ZoomOut className="w-3 h-3" /> Density
+                    </span>
+                    <Slider
+                        value={pixelsPerMonth}
+                        min={1}
+                        max={24}
+                        step={1}
+                        onValueChange={setPixelsPerMonth}
+                        className="w-32 md:w-48"
+                    />
+                    <ZoomIn className="w-3 h-3 text-muted-foreground" />
+                    <div className="w-px h-4 bg-white/10 mx-2" />
+                    <span className="text-xs font-mono text-muted-foreground min-w-[3rem]">
+                        {(currentDensity * 12).toFixed(0)}px/yr
+                    </span>
+                </div>
+
+                {/* Timeline Container */}
+                <div
+                    ref={containerRef}
+                    className="relative w-full overflow-hidden rounded-xl border border-white/10 bg-[#09090b] shadow-2xl transition-all duration-300 min-h-[500px]"
+                    style={{ height: Math.max(totalHeight, 500) }}
+                >
+                    {/* Grid Background */}
+                    <div className="absolute inset-0 pointer-events-none">
+                        {gridLines.map((line, i) => (
+                            <div
+                                key={i}
+                                className={cn(
+                                    "absolute w-full flex items-center transition-all duration-300",
+                                    line.type === 'year' ? "border-t border-white/20" : "border-t border-white/5"
                                 )}
+                                style={{ top: line.top }}
+                            >
+                                <span className={cn(
+                                    "pl-2 font-mono select-none",
+                                    line.type === 'year'
+                                        ? "text-xs font-bold text-white/90 -mt-5 bg-[#09090b]/50 px-1 rounded"
+                                        : "text-[9px] text-white/30 -mt-3.5 pl-6"
+                                )}>
+                                    {line.label}
+                                </span>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
 
                     {/* Events Layer */}
-                    <div className="absolute top-0 right-0 bottom-0 left-20 md:left-28 pr-4 py-4">
-                        {/* The content area offset by the time labels width */}
-
+                    <div className="absolute top-0 bottom-0 right-4 left-16 md:left-20">
                         {events.map((event, i) => {
-                            const isSmall = event.height < 40;
-
+                            const decor = getTooltipDecorations(event.category, event.colIndex);
                             return (
                                 <Tooltip key={i}>
                                     <TooltipTrigger asChild>
-                                        <div
+                                        <motion.div
+                                            layout
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            transition={{ duration: 0.3, delay: i * 0.02 }}
                                             className={cn(
-                                                "absolute rounded-md border-l-[6px] px-2 py-1 transition-all duration-300 cursor-pointer overflow-hidden group shadow-sm hover:shadow-md hover:z-50 hover:scale-[1.02] hover:translate-x-1 flex flex-col justify-center animate-in fade-in zoom-in-95 slide-in-from-bottom-2",
-                                                getCategoryClasses(event.category, event.colIndex)
+                                                "absolute rounded-sm border-l-2 md:border-l-4 overflow-hidden cursor-pointer backdrop-blur-sm transition-colors",
+                                                getEventStyleClasses(event.category, event.colIndex),
+                                                isMicroMode ? "opacity-80 hover:opacity-100" : ""
                                             )}
                                             style={{
                                                 top: event.top,
-                                                height: event.height - 4, // Gap
-                                                left: `calc((100% / ${event.totalColumns}) * ${event.colIndex})`,
-                                                width: `calc((100% / ${event.totalColumns}) - 12px)`, // Subtract gap
-                                                animationDelay: `${i * 50}ms`, // Staggered animation
-                                                animationFillMode: 'both'
+                                                height: event.height - 2,
+                                                left: `${(event.colIndex / event.totalColumns) * 100}%`,
+                                                width: `${(1 / event.totalColumns) * 100}%`,
+                                                maxWidth: '98%',
+                                                marginRight: '2px'
                                             }}
                                             onClick={() => onEdit?.(event.originalIndex)}
                                         >
-                                            <div className={cn("font-bold truncate leading-tight tracking-tight", isSmall ? "text-xs" : "text-sm")}>{event.label}</div>
-                                            {!isSmall && (
-                                                <div className="flex items-center gap-1.5 text-xs opacity-75 truncate mt-0.5">
-                                                    <CalendarIcon className="w-3 h-3" />
-                                                    <span>{event.start}</span>
+                                            {!isMicroMode && (
+                                                <div className="px-2 py-1 h-full">
+                                                    <div className={cn(
+                                                        "font-semibold truncate text-white",
+                                                        isCompactMode ? "text-[10px] leading-tight" : "text-xs md:text-sm"
+                                                    )}>
+                                                        {event.label}
+                                                    </div>
+
+                                                    {!isCompactMode && (
+                                                        <div className="text-[10px] text-white/60 truncate mt-0.5 font-mono">
+                                                            {event.start} — {event.end || 'Now'}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
-                                        </div>
+                                        </motion.div>
                                     </TooltipTrigger>
-                                    <TooltipContent side="right" align="start" className="p-0 border-none bg-transparent shadow-xl z-50">
-                                        <Card className={cn("w-72 border-l-4", getTooltipCategoryStyle(event.category, event.colIndex).split(' ')[0])}>
-                                            <CardHeader className="p-4 pb-2 bg-muted/5">
-                                                <CardTitle className="text-base leading-snug">{event.label}</CardTitle>
-                                            </CardHeader>
-                                            <CardContent className="p-4 pt-3 text-sm space-y-3">
-                                                <div className="flex items-center justify-between">
-                                                    <Badge variant="outline" className={cn("text-xs uppercase tracking-wide font-medium", getTooltipCategoryStyle(event.category, event.colIndex))}>
+                                    <TooltipContent side="right" className="bg-transparent border-none p-0 shadow-none z-50">
+                                        <div className="w-72 rounded-lg border border-white/10 bg-zinc-950 shadow-2xl overflow-hidden relative">
+                                            {/* Colored Strip */}
+                                            <div className={cn("w-1 h-full absolute left-0 top-0", decor.strip)} />
+
+                                            <div className="p-4 pl-5">
+                                                <h4 className="font-bold text-white text-base">{event.label}</h4>
+                                                <div className="flex items-center gap-2 mt-2 mb-3">
+                                                    <Badge variant="outline" className={cn("text-[10px] bg-transparent", decor.badge)}>
                                                         {event.category}
                                                     </Badge>
-                                                    <span className="text-xs text-muted-foreground font-mono">
-                                                        {event.duration} months
-                                                    </span>
+                                                    <span className="text-[10px] font-mono text-white/50">{event.start} - {event.end || 'Present'}</span>
                                                 </div>
-
-                                                <span className="font-medium text-foreground/80">{event.start} — {event.end || 'Ongoing'}</span>
-
                                                 {event.description && (
-                                                    <div className="text-muted-foreground bg-muted/10 p-2 rounded-md max-h-[150px] overflow-y-auto text-xs leading-relaxed whitespace-pre-wrap">
+                                                    <div className="text-xs text-zinc-400 leading-relaxed max-h-40 overflow-y-auto pr-1">
                                                         {event.description}
                                                     </div>
                                                 )}
-
-                                                {/* Edit Hint */}
-                                                <div className="text-[10px] text-muted-foreground pt-2 border-t flex items-center gap-1">
-                                                    <Edit2 className="w-3 h-3" />
-                                                    Click to edit details
+                                                <div className="mt-4 pt-2 border-t border-white/5 text-[10px] text-zinc-500 flex items-center gap-1.5 uppercase tracking-wider font-medium">
+                                                    <Edit2 className="w-3 h-3" /> Edit Event
                                                 </div>
-                                            </CardContent>
-                                        </Card>
+                                            </div>
+                                        </div>
                                     </TooltipContent>
                                 </Tooltip>
-                            );
+                            )
                         })}
                     </div>
                 </div>
             </div>
-        </TooltipProvider >
+        </TooltipProvider>
     );
 }

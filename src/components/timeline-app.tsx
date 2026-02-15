@@ -4,9 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toPng } from "html-to-image";
 import { TimelineItem } from "@/types/timeline";
-import { TimelineDisplay } from "@/components/timeline-display";
 import { TimelineVertical } from "@/components/timeline-vertical";
-// import { TimelineForm } from "@/components/timeline-form"; // Moved to Modal
 import { TimelineModal } from "@/components/timeline-modal";
 import { LinkedInImportModal } from "@/components/linkedin-import-modal";
 import { ColorSettingsModal } from "@/components/color-settings-modal";
@@ -31,7 +29,6 @@ export function TimelineApp() {
     const [data, setData] = useState<TimelineItem[]>([]);
     const [colorMap, setColorMap] = useState<Record<string, string>>({});
 
-    const [viewMode, setViewMode] = useState<'vertical' | 'horizontal'>('vertical');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [isColorModalOpen, setIsColorModalOpen] = useState(false);
@@ -166,13 +163,14 @@ export function TimelineApp() {
                         overflow: 'visible',
                         maxHeight: 'none',
                         maxWidth: 'none',
+                        transform: 'none', // Prevent motion transform issues
                     }
                 });
                 const link = document.createElement('a');
-                link.download = 'my-timeline.png';
+                link.download = 'timeline-me-export.png';
                 link.href = dataUrl;
                 link.click();
-                toast.success("Timeline image downloaded!");
+                toast.success("Image exported!");
             } catch (err) {
                 console.error(err);
                 toast.error("Failed to generate image.");
@@ -184,72 +182,72 @@ export function TimelineApp() {
     const uniqueCategories = Array.from(new Set(data.map(d => d.category || "Uncategorized"))).sort();
 
     return (
-        <div className="w-full max-w-6xl mx-auto space-y-6">
-
-            < Card className="bg-background/60 backdrop-blur-xl border-white/20 shadow-sm sticky top-4 z-50">
+        <div className="w-full max-w-7xl mx-auto space-y-6">
+            < Card className="bg-background/60 backdrop-blur-xl border-white/10 shadow-sm sticky top-4 z-50">
                 <CardContent className="p-4 flex flex-wrap gap-4 items-center justify-between">
-                    <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
-                        <Button onClick={() => setViewMode('vertical')} variant={viewMode === 'vertical' ? 'default' : 'outline'} size="sm">
-                            Vertical
-                        </Button>
-                        <Button onClick={() => setViewMode('horizontal')} variant={viewMode === 'horizontal' ? 'default' : 'outline'} size="sm">
-                            Horizontal
-                        </Button>
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center border border-white/5">
+                            <span className="font-mono font-bold text-white">T</span>
+                        </div>
+                        <h1 className="font-bold text-lg tracking-tight hidden sm:block">Timeline Me</h1>
                     </div>
 
                     <div className="flex gap-2 w-full md:w-auto justify-end">
                         {/* Desktop View: Full Actions */}
                         <div className="hidden md:flex gap-2 items-center">
-                            <Button onClick={() => { setIsModalOpen(false); setIsImportModalOpen(false); setIsColorModalOpen(true); }} variant="outline" size="sm" className="gap-2">
+                            <Button onClick={() => { setIsModalOpen(false); setIsImportModalOpen(false); setIsColorModalOpen(true); }} variant="outline" size="sm" className="gap-2 border-white/10 bg-white/5 hover:bg-white/10">
                                 <Palette className="w-4 h-4" /> Colors
                             </Button>
-                            <Button onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(true); }} variant="outline" size="sm" className="gap-2">
+                            <Button onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(true); }} variant="outline" size="sm" className="gap-2 border-white/10 bg-white/5 hover:bg-white/10">
                                 <Upload className="w-4 h-4" /> Import LinkedIn
                             </Button>
-                            <Button onClick={handleAdd} size="sm" className="gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white border-0 shadow-md">
+                            <Button onClick={handleAdd} size="sm" className="gap-2 bg-white text-black hover:bg-white/90 border-0 shadow-md font-medium">
                                 <Plus className="w-4 h-4" /> Add Event
                             </Button>
-                            <Button onClick={handleShare} variant="secondary" size="icon" title="Share URL">
-                                <Share2 className="w-4 h-4" />
+
+                            <div className="w-px h-6 bg-white/10 mx-1" />
+
+                            <Button onClick={handleShare} variant="ghost" size="icon" title="Share URL">
+                                <Share2 className="w-4 h-4 text-white/70" />
                             </Button>
-                            <Button onClick={handleScreenshot} variant="secondary" size="icon" title="Download Image">
-                                <Download className="w-4 h-4" />
+                            <Button onClick={handleScreenshot} variant="ghost" size="icon" title="Download Image">
+                                <Download className="w-4 h-4 text-white/70" />
                             </Button>
-                            <Button onClick={handleClear} variant="ghost" size="icon" className="text-destructive hover:text-destructive/90" title="Clear All">
+                            <Button onClick={handleClear} variant="ghost" size="icon" className="text-red-400 hover:text-red-300 hover:bg-red-500/10" title="Clear All">
                                 <Trash2 className="w-4 h-4" />
                             </Button>
                         </div>
 
                         {/* Mobile View: Compact Actions */}
                         <div className="flex md:hidden gap-2 items-center w-full justify-between">
-                            <Button onClick={handleAdd} size="sm" className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0 shadow-md">
-                                <Plus className="w-4 h-4 mr-2" /> Add Event
+                            <Button onClick={handleAdd} size="sm" className="flex-1 bg-white text-black border-0 shadow-md">
+                                <Plus className="w-4 h-4 mr-2" /> Add
                             </Button>
 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" size="icon">
+                                    <Button variant="outline" size="icon" className="border-white/10 bg-white/5">
                                         <Menu className="w-4 h-4" />
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-56">
+                                <DropdownMenuContent align="end" className="w-56 bg-[#18181b] border-white/10 text-white">
                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                    <DropdownMenuSeparator />
+                                    <DropdownMenuSeparator className="bg-white/10" />
                                     <DropdownMenuItem onClick={() => { setIsModalOpen(false); setIsImportModalOpen(false); setIsColorModalOpen(true); }}>
                                         <Palette className="w-4 h-4 mr-2" /> Colors
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(true); }}>
                                         <Upload className="w-4 h-4 mr-2" /> Import LinkedIn
                                     </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
+                                    <DropdownMenuSeparator className="bg-white/10" />
                                     <DropdownMenuItem onClick={handleShare}>
                                         <Share2 className="w-4 h-4 mr-2" /> Share Link
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={handleScreenshot}>
                                         <Download className="w-4 h-4 mr-2" /> Download Image
                                     </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem onClick={handleClear} className="text-destructive focus:text-destructive">
+                                    <DropdownMenuSeparator className="bg-white/10" />
+                                    <DropdownMenuItem onClick={handleClear} className="text-red-400 focus:text-red-400 focus:bg-red-500/10">
                                         <Trash2 className="w-4 h-4 mr-2" /> Clear All Data
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
@@ -261,19 +259,11 @@ export function TimelineApp() {
 
             {/* Main Content */}
             <div ref={timelineRef} className="p-1 rounded-xl transition-all duration-300">
-                {viewMode === 'vertical' ? (
-                    <TimelineVertical
-                        data={data}
-                        colorMap={colorMap}
-                        onEdit={handleEdit}
-                    />
-                ) : (
-                    <TimelineDisplay
-                        data={data}
-                        colorMap={colorMap}
-                        onEdit={handleEdit}
-                    />
-                )}
+                <TimelineVertical
+                    data={data}
+                    colorMap={colorMap}
+                    onEdit={handleEdit}
+                />
             </div>
 
             <TimelineModal

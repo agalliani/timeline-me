@@ -78,7 +78,7 @@ export function LinkedInImportModal({ isOpen, onClose, onImport }: LinkedInImpor
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
-            <DialogContent className="sm:max-w-[600px]">
+            <DialogContent className="sm:max-w-[600px] bg-zinc-900 text-zinc-50 border-zinc-800">
                 <DialogHeader>
                     <DialogTitle>Import from LinkedIn PDF</DialogTitle>
                     <DialogDescription>
@@ -108,7 +108,7 @@ export function LinkedInImportModal({ isOpen, onClose, onImport }: LinkedInImpor
                                         type="file"
                                         accept=".pdf"
                                         onChange={handleFileChange}
-                                        className="cursor-pointer"
+                                        className="cursor-pointer bg-zinc-950 text-zinc-50 border-zinc-700 file:text-zinc-50 placeholder:text-zinc-400"
                                     />
                                 </div>
                                 {pdfFile && <p className="text-sm text-green-500 flex items-center"><Check className="h-3 w-3 mr-1" /> {pdfFile.name} ready</p>}

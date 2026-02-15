@@ -73,7 +73,7 @@ export function ColorSettingsModal({
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-md bg-background">
+            <DialogContent className="sm:max-w-md bg-zinc-900 text-zinc-50 border-zinc-800">
                 <DialogHeader>
                     <DialogTitle>Category Colors</DialogTitle>
                     <DialogDescription>
