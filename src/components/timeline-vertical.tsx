@@ -68,7 +68,9 @@ export function TimelineVertical({ data, className, colorMap = {}, onEdit, reado
 
         const parsedEvents = data.map((item, index) => {
             const startVal = getMonthValue(item.start);
-            const endVal = item.end ? getMonthValue(item.end) : startVal;
+            // If end is missing, treat as "Now" (current month)
+            const currentMonthVal = (new Date().getFullYear() * 12) + new Date().getMonth();
+            const endVal = item.end ? getMonthValue(item.end) : currentMonthVal;
             // Min duration 1 month for visibility
             let duration = Math.max(endVal - startVal, 1);
 

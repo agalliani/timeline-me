@@ -20,10 +20,10 @@ interface EmbedModalProps {
     onClose: () => void;
     data: TimelineItem[];
     colorMap: Record<string, string>;
-    viewMode: 'vertical' | 'horizontal';
+
 }
 
-export function EmbedModal({ isOpen, onClose, data, colorMap, viewMode }: EmbedModalProps) {
+export function EmbedModal({ isOpen, onClose, data, colorMap }: EmbedModalProps) {
     const [copied, setCopied] = useState(false);
 
     const getEmbedCode = () => {
@@ -31,7 +31,7 @@ export function EmbedModal({ isOpen, onClose, data, colorMap, viewMode }: EmbedM
 
         const encoded = encodeTimelineData(data, colorMap);
         const baseUrl = `${window.location.origin}/timeline-me/embed`;
-        const url = `${baseUrl}?data=${encoded}&view=${viewMode}`;
+        const url = `${baseUrl}?data=${encoded}`;
 
         return `<iframe src="${url}" width="100%" height="600" style="border:none; border-radius: 8px; background: transparent;" title="Timeline Me Embed"></iframe>`;
     };

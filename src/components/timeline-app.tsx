@@ -11,11 +11,13 @@ import { LinkedInImportModal } from "@/components/linkedin-import-modal";
 import { ColorSettingsModal } from "@/components/color-settings-modal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Share2, Download, Trash2, Plus, Upload, Palette, LayoutList, PanelTop, Code } from "lucide-react";
+import { Share2, Download, Trash2, Plus, Upload, Palette, LayoutList, Code } from "lucide-react";
 import { toast } from "sonner";
-import { TimelineDisplay } from "@/components/timeline-display";
+
 import { EmbedModal } from "@/components/embed-modal";
 import { encodeTimelineData, decodeTimelineData } from "@/lib/url-utils";
+import { TemplateModal } from "@/components/template-modal";
+import { TimelineTemplate } from "@/lib/templates";
 
 import {
     DropdownMenu,
@@ -32,11 +34,12 @@ export function TimelineApp() {
     const searchParams = useSearchParams();
     const [data, setData] = useState<TimelineItem[]>([]);
     const [colorMap, setColorMap] = useState<Record<string, string>>({});
-    const [viewMode, setViewMode] = useState<'vertical' | 'horizontal'>('vertical');
+
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [isColorModalOpen, setIsColorModalOpen] = useState(false);
+    const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
     const [isEmbedModalOpen, setIsEmbedModalOpen] = useState(false);
     const [selectedEventIndex, setSelectedEventIndex] = useState<number | null>(null);
     const timelineRef = useRef<HTMLDivElement>(null);
@@ -144,6 +147,17 @@ export function TimelineApp() {
         }
     };
 
+    const handleLoadTemplate = (template: TimelineTemplate) => {
+        setData(template.items);
+        if (template.colorMap) {
+            setColorMap(template.colorMap);
+            saveColors(template.colorMap);
+        }
+        saveToLocalStorage(template.items);
+        toast.success(`Loaded template: ${template.name}`);
+        setIsTemplateModalOpen(false);
+    };
+
     const handleShare = () => {
         const encoded = encodeTimelineData(data, colorMap);
         const url = `${window.location.origin}${window.location.pathname}?data=${encoded}`;
@@ -199,10 +213,13 @@ export function TimelineApp() {
                     <div className="flex gap-2 w-full md:w-auto justify-end">
                         {/* Desktop View: Full Actions */}
                         <div className="hidden md:flex gap-2 items-center">
-                            <Button onClick={() => { setIsModalOpen(false); setIsImportModalOpen(false); setIsColorModalOpen(true); }} variant="outline" size="sm" className="gap-2 border-white/10 bg-white/5 hover:bg-white/10">
+                            <Button onClick={() => { setIsModalOpen(false); setIsImportModalOpen(false); setIsColorModalOpen(true); setIsTemplateModalOpen(false); }} variant="outline" size="sm" className="gap-2 border-white/10 bg-white/5 hover:bg-white/10">
                                 <Palette className="w-4 h-4" /> Colors
                             </Button>
-                            <Button onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(true); }} variant="outline" size="sm" className="gap-2 border-white/10 bg-white/5 hover:bg-white/10">
+                            <Button onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(false); setIsTemplateModalOpen(true); }} variant="outline" size="sm" className="gap-2 border-white/10 bg-white/5 hover:bg-white/10">
+                                <LayoutList className="w-4 h-4" /> Templates
+                            </Button>
+                            <Button onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(true); setIsTemplateModalOpen(false); }} variant="outline" size="sm" className="gap-2 border-white/10 bg-white/5 hover:bg-white/10">
                                 <Upload className="w-4 h-4" /> Import LinkedIn
                             </Button>
                             <Button onClick={handleAdd} size="sm" className="gap-2 bg-white text-black hover:bg-white/90 border-0 shadow-md font-medium">
@@ -210,28 +227,9 @@ export function TimelineApp() {
                             </Button>
 
 
-                            <div className="flex bg-white/5 rounded-lg border border-white/10 p-1 mr-2">
-                                <Button
-                                    onClick={() => setViewMode('vertical')}
-                                    size="sm"
-                                    variant="ghost"
-                                    className={cn("h-7 px-2", viewMode === 'vertical' ? "bg-white/10 text-white" : "text-muted-foreground hover:text-white")}
-                                    title="Vertical View"
-                                >
-                                    <LayoutList className="w-4 h-4" />
-                                </Button>
-                                <Button
-                                    onClick={() => setViewMode('horizontal')}
-                                    size="sm"
-                                    variant="ghost"
-                                    className={cn("h-7 px-2", viewMode === 'horizontal' ? "bg-white/10 text-white" : "text-muted-foreground hover:text-white")}
-                                    title="Horizontal View"
-                                >
-                                    <PanelTop className="w-4 h-4" />
-                                </Button>
-                            </div>
 
-                            <div className="w-px h-6 bg-white/10 mx-1" />
+
+
 
                             <Button onClick={handleShare} variant="ghost" size="icon" title="Share URL">
                                 <Share2 className="w-4 h-4 text-white/70" />
@@ -262,8 +260,11 @@ export function TimelineApp() {
                                 <DropdownMenuContent align="end" className="w-56 bg-[#18181b] border-white/10 text-white">
                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                     <DropdownMenuSeparator className="bg-white/10" />
-                                    <DropdownMenuItem onClick={() => { setIsModalOpen(false); setIsImportModalOpen(false); setIsColorModalOpen(true); }}>
+                                    <DropdownMenuItem onClick={() => { setIsModalOpen(false); setIsImportModalOpen(false); setIsColorModalOpen(true); setIsTemplateModalOpen(false); }}>
                                         <Palette className="w-4 h-4 mr-2" /> Colors
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(false); setIsTemplateModalOpen(true); }}>
+                                        <LayoutList className="w-4 h-4 mr-2" /> Templates
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(true); }}>
                                         <Upload className="w-4 h-4 mr-2" /> Import LinkedIn
@@ -291,19 +292,11 @@ export function TimelineApp() {
 
             {/* Main Content */}
             <div ref={timelineRef} className="p-1 rounded-xl transition-all duration-300">
-                {viewMode === 'vertical' ? (
-                    <TimelineVertical
-                        data={data}
-                        colorMap={colorMap}
-                        onEdit={handleEdit}
-                    />
-                ) : (
-                    <TimelineDisplay
-                        data={data}
-                        colorMap={colorMap}
-                        onEdit={handleEdit}
-                    />
-                )}
+                <TimelineVertical
+                    data={data}
+                    colorMap={colorMap}
+                    onEdit={handleEdit}
+                />
             </div>
 
             <TimelineModal
@@ -328,12 +321,18 @@ export function TimelineApp() {
                 onSave={saveColors}
             />
 
+            <TemplateModal
+                isOpen={isTemplateModalOpen}
+                onClose={() => setIsTemplateModalOpen(false)}
+                onLoad={handleLoadTemplate}
+            />
+
             <EmbedModal
                 isOpen={isEmbedModalOpen}
                 onClose={() => setIsEmbedModalOpen(false)}
                 data={data}
                 colorMap={colorMap}
-                viewMode={viewMode}
+
             />
         </div >
     );
