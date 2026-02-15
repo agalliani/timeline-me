@@ -36,7 +36,8 @@ export class Timesheet {
                 start: begin,
                 end: end,
                 label: item.label,
-                type: item.category
+                type: item.category,
+                description: item.description
             });
         }
     }

@@ -16,14 +16,15 @@ export interface ParsedTimelineItem {
     end: DateObj | null;
     label: string;
     type: string;
+    description?: string;
 }
 
 export interface BubbleModel {
     marginLeft: number; // Legacy
     width: number;      // Legacy
+    type: string;
     class: string;
     duration: string;
-    dateLabel: string;
     dateLabel: string;
     label: string;
     description?: string;
