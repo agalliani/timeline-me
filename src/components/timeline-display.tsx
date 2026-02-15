@@ -19,9 +19,10 @@ interface TimelineDisplayProps {
     className?: string;
     colorMap?: Record<string, string>;
     onEdit?: (index: number) => void;
+    readonly?: boolean;
 }
 
-export const TimelineDisplay = forwardRef<HTMLDivElement, TimelineDisplayProps>(({ data, minYear = 2020, maxYear = 2026, className, colorMap = {}, onEdit }, ref) => {
+export const TimelineDisplay = forwardRef<HTMLDivElement, TimelineDisplayProps>(({ data, minYear = 2020, maxYear = 2026, className, colorMap = {}, onEdit, readonly = false }, ref) => {
 
     const { bubbles, years, totalMonths, minYear: derivedMin } = useMemo(() => {
         // Auto-detect range if not provided or reasonable
@@ -124,7 +125,7 @@ export const TimelineDisplay = forwardRef<HTMLDivElement, TimelineDisplayProps>(
                                         initial={{ opacity: 0, scale: 0.95 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         transition={{ delay: index * 0.05 }}
-                                        onClick={() => onEdit?.(index)}
+                                        onClick={() => !readonly && onEdit?.(index)}
                                         className={cn(
                                             "relative group rounded border-l-2 flex flex-col justify-center px-2 py-1 transition-all hover:scale-[1.01] hover:brightness-110 hover:z-20 cursor-pointer h-14 shadow-sm",
                                             getBubbleStyle(bubble.type || '')
@@ -161,9 +162,11 @@ export const TimelineDisplay = forwardRef<HTMLDivElement, TimelineDisplayProps>(
                                                 </div>
                                             )}
 
-                                            <div className="mt-4 pt-2 border-t border-zinc-100 text-[10px] text-zinc-400 flex items-center gap-1.5 uppercase tracking-wider font-medium">
-                                                <Edit2 className="w-3 h-3" /> Edit Event
-                                            </div>
+                                            {!readonly && (
+                                                <div className="mt-4 pt-2 border-t border-zinc-100 text-[10px] text-zinc-400 flex items-center gap-1.5 uppercase tracking-wider font-medium">
+                                                    <Edit2 className="w-3 h-3" /> Edit Event
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </TooltipContent>

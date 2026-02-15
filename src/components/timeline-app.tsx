@@ -11,9 +11,11 @@ import { LinkedInImportModal } from "@/components/linkedin-import-modal";
 import { ColorSettingsModal } from "@/components/color-settings-modal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Share2, Download, Trash2, Plus, Upload, Palette, LayoutList, PanelTop } from "lucide-react";
+import { Share2, Download, Trash2, Plus, Upload, Palette, LayoutList, PanelTop, Code } from "lucide-react";
 import { toast } from "sonner";
 import { TimelineDisplay } from "@/components/timeline-display";
+import { EmbedModal } from "@/components/embed-modal";
+import { encodeTimelineData, decodeTimelineData } from "@/lib/url-utils";
 
 import {
     DropdownMenu,
@@ -35,6 +37,7 @@ export function TimelineApp() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [isColorModalOpen, setIsColorModalOpen] = useState(false);
+    const [isEmbedModalOpen, setIsEmbedModalOpen] = useState(false);
     const [selectedEventIndex, setSelectedEventIndex] = useState<number | null>(null);
     const timelineRef = useRef<HTMLDivElement>(null);
 
@@ -43,13 +46,12 @@ export function TimelineApp() {
         // Load Data from URL or Fallback
         const dataParam = searchParams.get("data");
         if (dataParam) {
-            try {
-                // Robust decoding for UTF-8 Support
-                const decoded = decodeURIComponent(escape(atob(dataParam)));
-                const parsed = JSON.parse(decoded);
-                if (Array.isArray(parsed)) setData(parsed);
-            } catch (e) {
-                console.error("Failed to parse timeline data from URL", e);
+            const decoded = decodeTimelineData(dataParam);
+            if (decoded) {
+                setData(decoded.data);
+                if (Object.keys(decoded.colorMap).length > 0) {
+                    setColorMap(decoded.colorMap);
+                }
             }
         } else {
             // Load from LocalStorage if no URL param
@@ -143,8 +145,7 @@ export function TimelineApp() {
     };
 
     const handleShare = () => {
-        const json = JSON.stringify(data);
-        const encoded = btoa(unescape(encodeURIComponent(json)));
+        const encoded = encodeTimelineData(data, colorMap);
         const url = `${window.location.origin}${window.location.pathname}?data=${encoded}`;
 
         navigator.clipboard.writeText(url);
@@ -235,6 +236,9 @@ export function TimelineApp() {
                             <Button onClick={handleShare} variant="ghost" size="icon" title="Share URL">
                                 <Share2 className="w-4 h-4 text-white/70" />
                             </Button>
+                            <Button onClick={() => setIsEmbedModalOpen(true)} variant="ghost" size="icon" title="Embed Timeline">
+                                <Code className="w-4 h-4 text-white/70" />
+                            </Button>
                             <Button onClick={handleScreenshot} variant="ghost" size="icon" title="Download Image">
                                 <Download className="w-4 h-4 text-white/70" />
                             </Button>
@@ -267,6 +271,9 @@ export function TimelineApp() {
                                     <DropdownMenuSeparator className="bg-white/10" />
                                     <DropdownMenuItem onClick={handleShare}>
                                         <Share2 className="w-4 h-4 mr-2" /> Share Link
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => setIsEmbedModalOpen(true)}>
+                                        <Code className="w-4 h-4 mr-2" /> Embed Timeline
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={handleScreenshot}>
                                         <Download className="w-4 h-4 mr-2" /> Download Image
@@ -319,6 +326,14 @@ export function TimelineApp() {
                 categories={uniqueCategories}
                 colorMap={colorMap}
                 onSave={saveColors}
+            />
+
+            <EmbedModal
+                isOpen={isEmbedModalOpen}
+                onClose={() => setIsEmbedModalOpen(false)}
+                data={data}
+                colorMap={colorMap}
+                viewMode={viewMode}
             />
         </div >
     );

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline Embed Test</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
+        .container { max-width: 800px; mx-auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        iframe { border: 1px solid #ddd; border-radius: 8px; width: 100%; height: 500px; }
+    </style>
+</head>
+<body>
+    <h1>Timeline Embed Verification</h1>
+    
+    <div class="container">
+        <h2>Vertical View</h2>
+        <iframe src="http://localhost:3000/embed?data=eyJkIjpbeyJzdGFydCI6IjIwMjIiLCJlbmQiOiIyMDIzIiwibGFiZWwiOiJUZXN0IEV2ZW50IDEiLCJjYXRlZ29yeSI6IldvcmsifSx7InN0YXJ0IjoiMjAyMyIsImVuZCI6IjIwMjQiLCJsYWJlbCI6IlRlc3QgRXZlbnQgMiIsImNhdGVnb3J5IjoiRWR1Y2F0aW9uIn1dLCJjIjp7IldvcmsiOiJibHVlIiwiRWR1Y2F0aW9uIjoicmVkIn19&view=vertical"></iframe>
+    </div>
+
+    <div class="container">
+        <h2>Horizontal View</h2>
+        <iframe src="http://localhost:3000/embed?data=eyJkIjpbeyJzdGFydCI6IjIwMjIiLCJlbmQiOiIyMDIzIiwibGFiZWwiOiJUZXN0IEV2ZW50IDEiLCJjYXRlZ29yeSI6IldvcmsifSx7InN0YXJ0IjoiMjAyMyIsImVuZCI6IjIwMjQiLCJsYWJlbCI6IlRlc3QgRXZlbnQgMiIsImNhdGVnb3J5IjoiRWR1Y2F0aW9uIn1dLCJjIjp7IldvcmsiOiJibHVlIiwiRWR1Y2F0aW9uIjoicmVkIn19&view=horizontal"></iframe>
+    </div>
+</body>
+</html>

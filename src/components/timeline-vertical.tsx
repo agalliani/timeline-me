@@ -18,6 +18,7 @@ interface TimelineVerticalProps {
     className?: string;
     colorMap?: Record<string, string>;
     onEdit?: (index: number) => void;
+    readonly?: boolean;
 }
 
 // Auto-Color Palette for Columns (Light friendly)
@@ -25,8 +26,10 @@ const AUTO_COLORS = [
     'blue', 'emerald', 'violet', 'amber', 'cyan', 'rose', 'indigo', 'teal'
 ];
 
-export function TimelineVertical({ data, className, colorMap = {}, onEdit }: TimelineVerticalProps) {
+export function TimelineVertical({ data, className, colorMap = {}, onEdit, readonly = false }: TimelineVerticalProps) {
     const containerRef = useRef<HTMLDivElement>(null);
+
+    // ... (rest of logic) ...
 
     // Zoom State: Pixels per Month (Range 1 to 24)
     // Default 6 for balanced view
@@ -200,25 +203,27 @@ export function TimelineVertical({ data, className, colorMap = {}, onEdit }: Tim
         <TooltipProvider delayDuration={0}>
             <div className={cn("flex flex-col space-y-4", className)}>
 
-                {/* Control Bar */}
-                <div className="sticky top-4 z-40 bg-white/80 backdrop-blur-md border border-zinc-200 p-2 rounded-lg flex items-center gap-4 shadow-sm w-fit mx-auto lg:mx-0">
-                    <span className="text-[10px] items-center gap-1.5 uppercase tracking-wider font-mono text-muted-foreground hidden sm:flex">
-                        <ZoomOut className="w-3 h-3" /> Density
-                    </span>
-                    <Slider
-                        value={pixelsPerMonth}
-                        min={1}
-                        max={24}
-                        step={1}
-                        onValueChange={setPixelsPerMonth}
-                        className="w-32 md:w-48"
-                    />
-                    <ZoomIn className="w-3 h-3 text-muted-foreground" />
-                    <div className="w-px h-4 bg-zinc-200 mx-2" />
-                    <span className="text-xs font-mono text-muted-foreground min-w-[3rem]">
-                        {(currentDensity * 12).toFixed(0)}px/yr
-                    </span>
-                </div>
+                {/* Control Bar (Hidden in Readonly) */}
+                {!readonly && (
+                    <div className="sticky top-4 z-40 bg-white/80 backdrop-blur-md border border-zinc-200 p-2 rounded-lg flex items-center gap-4 shadow-sm w-fit mx-auto lg:mx-0">
+                        <span className="text-[10px] items-center gap-1.5 uppercase tracking-wider font-mono text-muted-foreground hidden sm:flex">
+                            <ZoomOut className="w-3 h-3" /> Density
+                        </span>
+                        <Slider
+                            value={pixelsPerMonth}
+                            min={1}
+                            max={24}
+                            step={1}
+                            onValueChange={setPixelsPerMonth}
+                            className="w-32 md:w-48"
+                        />
+                        <ZoomIn className="w-3 h-3 text-muted-foreground" />
+                        <div className="w-px h-4 bg-zinc-200 mx-2" />
+                        <span className="text-xs font-mono text-muted-foreground min-w-[3rem]">
+                            {(currentDensity * 12).toFixed(0)}px/yr
+                        </span>
+                    </div>
+                )}
 
                 {/* Timeline Container */}
                 <div
@@ -274,7 +279,7 @@ export function TimelineVertical({ data, className, colorMap = {}, onEdit }: Tim
                                                 maxWidth: '98%',
                                                 marginRight: '2px'
                                             }}
-                                            onClick={() => onEdit?.(event.originalIndex)}
+                                            onClick={() => !readonly && onEdit?.(event.originalIndex)}
                                         >
                                             {!isMicroMode && (
                                                 <div className="px-2 py-1 h-full">
@@ -312,9 +317,11 @@ export function TimelineVertical({ data, className, colorMap = {}, onEdit }: Tim
                                                         {event.description}
                                                     </div>
                                                 )}
-                                                <div className="mt-4 pt-2 border-t border-zinc-100 text-[10px] text-zinc-400 flex items-center gap-1.5 uppercase tracking-wider font-medium">
-                                                    <Edit2 className="w-3 h-3" /> Edit Event
-                                                </div>
+                                                {!readonly && (
+                                                    <div className="mt-4 pt-2 border-t border-zinc-100 text-[10px] text-zinc-400 flex items-center gap-1.5 uppercase tracking-wider font-medium">
+                                                        <Edit2 className="w-3 h-3" /> Edit Event
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </TooltipContent>
