@@ -94,7 +94,6 @@ export const TimelineDisplay = forwardRef<HTMLDivElement, TimelineDisplayProps>(
                     {years.map((year, i) => {
                         const colStart = (year - derivedMin) * 12 + 1;
                         return (
-                        return (
                             <div
                                 key={year}
                                 className="border-l border-zinc-200 pl-2 pb-4 sticky top-0 z-10 pointer-events-none"
