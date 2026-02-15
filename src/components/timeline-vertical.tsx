@@ -20,7 +20,7 @@ interface TimelineVerticalProps {
     onEdit?: (index: number) => void;
 }
 
-// Auto-Color Palette for Columns (when no category color is set)
+// Auto-Color Palette for Columns (Light friendly)
 const AUTO_COLORS = [
     'blue', 'emerald', 'violet', 'amber', 'cyan', 'rose', 'indigo', 'teal'
 ];
@@ -162,14 +162,14 @@ export function TimelineVertical({ data, className, colorMap = {}, onEdit }: Tim
     const getEventStyleClasses = (category: string, colIndex: number) => {
         const color = getColorForEvent(category, colIndex);
         switch (color) {
-            case 'red': return 'bg-red-500/20 border-red-500 text-red-100 hover:bg-red-500/30';
-            case 'blue': return 'bg-blue-500/20 border-blue-500 text-blue-100 hover:bg-blue-500/30';
-            case 'green': return 'bg-emerald-500/20 border-emerald-500 text-emerald-100 hover:bg-emerald-500/30';
-            case 'amber': return 'bg-amber-500/20 border-amber-500 text-amber-100 hover:bg-amber-500/30';
-            case 'purple': return 'bg-purple-500/20 border-purple-500 text-purple-100 hover:bg-purple-500/30';
-            case 'cyan': return 'bg-cyan-500/20 border-cyan-500 text-cyan-100 hover:bg-cyan-500/30';
-            case 'rose': return 'bg-rose-500/20 border-rose-500 text-rose-100 hover:bg-rose-500/30';
-            default: return 'bg-slate-500/20 border-slate-500 text-slate-100 hover:bg-slate-500/30';
+            case 'red': return 'bg-red-50/50 border-red-500 text-red-900 hover:bg-red-100/50';
+            case 'blue': return 'bg-blue-50/50 border-blue-500 text-blue-900 hover:bg-blue-100/50';
+            case 'green': return 'bg-emerald-50/50 border-emerald-500 text-emerald-900 hover:bg-emerald-100/50';
+            case 'amber': return 'bg-amber-50/50 border-amber-500 text-amber-900 hover:bg-amber-100/50';
+            case 'purple': return 'bg-purple-50/50 border-purple-500 text-purple-900 hover:bg-purple-100/50';
+            case 'cyan': return 'bg-cyan-50/50 border-cyan-500 text-cyan-900 hover:bg-cyan-100/50';
+            case 'rose': return 'bg-rose-50/50 border-rose-500 text-rose-900 hover:bg-rose-100/50';
+            default: return 'bg-slate-50/50 border-slate-500 text-slate-900 hover:bg-slate-100/50';
         }
     }
 
@@ -177,20 +177,20 @@ export function TimelineVertical({ data, className, colorMap = {}, onEdit }: Tim
         const color = getColorForEvent(category, colIndex);
         // Returns classes for the colored strip and badge
         switch (color) {
-            case 'red': return { strip: 'bg-red-500', badge: 'text-red-400 border-red-500/30' };
-            case 'blue': return { strip: 'bg-blue-500', badge: 'text-blue-400 border-blue-500/30' };
-            case 'green': return { strip: 'bg-emerald-500', badge: 'text-emerald-400 border-emerald-500/30' };
-            case 'amber': return { strip: 'bg-amber-500', badge: 'text-amber-400 border-amber-500/30' };
-            case 'purple': return { strip: 'bg-purple-500', badge: 'text-purple-400 border-purple-500/30' };
-            case 'cyan': return { strip: 'bg-cyan-500', badge: 'text-cyan-400 border-cyan-500/30' };
-            case 'rose': return { strip: 'bg-rose-500', badge: 'text-rose-400 border-rose-500/30' };
-            default: return { strip: 'bg-slate-500', badge: 'text-slate-400 border-slate-500/30' };
+            case 'red': return { strip: 'bg-red-500', badge: 'text-red-700 border-red-200 bg-red-50' };
+            case 'blue': return { strip: 'bg-blue-500', badge: 'text-blue-700 border-blue-200 bg-blue-50' };
+            case 'green': return { strip: 'bg-emerald-500', badge: 'text-emerald-700 border-emerald-200 bg-emerald-50' };
+            case 'amber': return { strip: 'bg-amber-500', badge: 'text-amber-700 border-amber-200 bg-amber-50' };
+            case 'purple': return { strip: 'bg-purple-500', badge: 'text-purple-700 border-purple-200 bg-purple-50' };
+            case 'cyan': return { strip: 'bg-cyan-500', badge: 'text-cyan-700 border-cyan-200 bg-cyan-50' };
+            case 'rose': return { strip: 'bg-rose-500', badge: 'text-rose-700 border-rose-200 bg-rose-50' };
+            default: return { strip: 'bg-slate-500', badge: 'text-slate-700 border-slate-200 bg-slate-50' };
         }
     }
 
     if (!data || data.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center p-12 border border-dashed border-white/10 rounded-xl bg-white/5">
+            <div className="flex flex-col items-center justify-center p-12 border border-dashed border-zinc-200 rounded-xl bg-zinc-50">
                 <p className="text-muted-foreground">Timeline is empty.</p>
             </div>
         );
@@ -201,7 +201,7 @@ export function TimelineVertical({ data, className, colorMap = {}, onEdit }: Tim
             <div className={cn("flex flex-col space-y-4", className)}>
 
                 {/* Control Bar */}
-                <div className="sticky top-4 z-40 bg-background/80 backdrop-blur-md border border-white/10 p-2 rounded-lg flex items-center gap-4 shadow-xl w-fit mx-auto lg:mx-0">
+                <div className="sticky top-4 z-40 bg-white/80 backdrop-blur-md border border-zinc-200 p-2 rounded-lg flex items-center gap-4 shadow-sm w-fit mx-auto lg:mx-0">
                     <span className="text-[10px] items-center gap-1.5 uppercase tracking-wider font-mono text-muted-foreground hidden sm:flex">
                         <ZoomOut className="w-3 h-3" /> Density
                     </span>
@@ -214,7 +214,7 @@ export function TimelineVertical({ data, className, colorMap = {}, onEdit }: Tim
                         className="w-32 md:w-48"
                     />
                     <ZoomIn className="w-3 h-3 text-muted-foreground" />
-                    <div className="w-px h-4 bg-white/10 mx-2" />
+                    <div className="w-px h-4 bg-zinc-200 mx-2" />
                     <span className="text-xs font-mono text-muted-foreground min-w-[3rem]">
                         {(currentDensity * 12).toFixed(0)}px/yr
                     </span>
@@ -223,7 +223,7 @@ export function TimelineVertical({ data, className, colorMap = {}, onEdit }: Tim
                 {/* Timeline Container */}
                 <div
                     ref={containerRef}
-                    className="relative w-full overflow-hidden rounded-xl border border-white/10 bg-[#09090b] shadow-2xl transition-all duration-300 min-h-[500px]"
+                    className="relative w-full overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition-all duration-300 min-h-[500px]"
                     style={{ height: Math.max(totalHeight, 500) }}
                 >
                     {/* Grid Background */}
@@ -233,15 +233,15 @@ export function TimelineVertical({ data, className, colorMap = {}, onEdit }: Tim
                                 key={i}
                                 className={cn(
                                     "absolute w-full flex items-center transition-all duration-300",
-                                    line.type === 'year' ? "border-t border-white/20" : "border-t border-white/5"
+                                    line.type === 'year' ? "border-t border-black/10" : "border-t border-black/5"
                                 )}
                                 style={{ top: line.top }}
                             >
                                 <span className={cn(
                                     "pl-2 font-mono select-none",
                                     line.type === 'year'
-                                        ? "text-xs font-bold text-white/90 -mt-5 bg-[#09090b]/50 px-1 rounded"
-                                        : "text-[9px] text-white/30 -mt-3.5 pl-6"
+                                        ? "text-xs font-bold text-zinc-900 -mt-5 bg-white/50 px-1 rounded"
+                                        : "text-[9px] text-zinc-400 -mt-3.5 pl-6"
                                 )}>
                                     {line.label}
                                 </span>
@@ -279,14 +279,14 @@ export function TimelineVertical({ data, className, colorMap = {}, onEdit }: Tim
                                             {!isMicroMode && (
                                                 <div className="px-2 py-1 h-full">
                                                     <div className={cn(
-                                                        "font-semibold truncate text-white",
+                                                        "font-semibold truncate text-zinc-900",
                                                         isCompactMode ? "text-[10px] leading-tight" : "text-xs md:text-sm"
                                                     )}>
                                                         {event.label}
                                                     </div>
 
                                                     {!isCompactMode && (
-                                                        <div className="text-[10px] text-white/60 truncate mt-0.5 font-mono">
+                                                        <div className="text-[10px] text-zinc-500 truncate mt-0.5 font-mono">
                                                             {event.start} — {event.end || 'Now'}
                                                         </div>
                                                     )}
@@ -295,24 +295,24 @@ export function TimelineVertical({ data, className, colorMap = {}, onEdit }: Tim
                                         </motion.div>
                                     </TooltipTrigger>
                                     <TooltipContent side="right" className="bg-transparent border-none p-0 shadow-none z-50">
-                                        <div className="w-72 rounded-lg border border-white/10 bg-zinc-950 shadow-2xl overflow-hidden relative">
+                                        <div className="w-72 rounded-lg border border-zinc-200 bg-white shadow-xl overflow-hidden relative">
                                             {/* Colored Strip */}
                                             <div className={cn("w-1 h-full absolute left-0 top-0", decor.strip)} />
 
                                             <div className="p-4 pl-5">
-                                                <h4 className="font-bold text-white text-base">{event.label}</h4>
+                                                <h4 className="font-bold text-zinc-900 text-base">{event.label}</h4>
                                                 <div className="flex items-center gap-2 mt-2 mb-3">
                                                     <Badge variant="outline" className={cn("text-[10px] bg-transparent", decor.badge)}>
                                                         {event.category}
                                                     </Badge>
-                                                    <span className="text-[10px] font-mono text-white/50">{event.start} - {event.end || 'Present'}</span>
+                                                    <span className="text-[10px] font-mono text-zinc-500">{event.start} - {event.end || 'Present'}</span>
                                                 </div>
                                                 {event.description && (
-                                                    <div className="text-xs text-zinc-400 leading-relaxed max-h-40 overflow-y-auto pr-1">
+                                                    <div className="text-xs text-zinc-600 leading-relaxed max-h-40 overflow-y-auto pr-1">
                                                         {event.description}
                                                     </div>
                                                 )}
-                                                <div className="mt-4 pt-2 border-t border-white/5 text-[10px] text-zinc-500 flex items-center gap-1.5 uppercase tracking-wider font-medium">
+                                                <div className="mt-4 pt-2 border-t border-zinc-100 text-[10px] text-zinc-400 flex items-center gap-1.5 uppercase tracking-wider font-medium">
                                                     <Edit2 className="w-3 h-3" /> Edit Event
                                                 </div>
                                             </div>

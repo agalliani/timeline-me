@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toPng } from "html-to-image";
+import { cn } from "@/lib/utils";
 import { TimelineItem } from "@/types/timeline";
 import { TimelineVertical } from "@/components/timeline-vertical";
 import { TimelineModal } from "@/components/timeline-modal";
@@ -10,8 +11,9 @@ import { LinkedInImportModal } from "@/components/linkedin-import-modal";
 import { ColorSettingsModal } from "@/components/color-settings-modal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Share2, Download, Trash2, Plus, Upload, Palette } from "lucide-react";
+import { Share2, Download, Trash2, Plus, Upload, Palette, LayoutList, PanelTop } from "lucide-react";
 import { toast } from "sonner";
+import { TimelineDisplay } from "@/components/timeline-display";
 
 import {
     DropdownMenu,
@@ -28,6 +30,7 @@ export function TimelineApp() {
     const searchParams = useSearchParams();
     const [data, setData] = useState<TimelineItem[]>([]);
     const [colorMap, setColorMap] = useState<Record<string, string>>({});
+    const [viewMode, setViewMode] = useState<'vertical' | 'horizontal'>('vertical');
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -205,6 +208,28 @@ export function TimelineApp() {
                                 <Plus className="w-4 h-4" /> Add Event
                             </Button>
 
+
+                            <div className="flex bg-white/5 rounded-lg border border-white/10 p-1 mr-2">
+                                <Button
+                                    onClick={() => setViewMode('vertical')}
+                                    size="sm"
+                                    variant="ghost"
+                                    className={cn("h-7 px-2", viewMode === 'vertical' ? "bg-white/10 text-white" : "text-muted-foreground hover:text-white")}
+                                    title="Vertical View"
+                                >
+                                    <LayoutList className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                    onClick={() => setViewMode('horizontal')}
+                                    size="sm"
+                                    variant="ghost"
+                                    className={cn("h-7 px-2", viewMode === 'horizontal' ? "bg-white/10 text-white" : "text-muted-foreground hover:text-white")}
+                                    title="Horizontal View"
+                                >
+                                    <PanelTop className="w-4 h-4" />
+                                </Button>
+                            </div>
+
                             <div className="w-px h-6 bg-white/10 mx-1" />
 
                             <Button onClick={handleShare} variant="ghost" size="icon" title="Share URL">
@@ -259,11 +284,19 @@ export function TimelineApp() {
 
             {/* Main Content */}
             <div ref={timelineRef} className="p-1 rounded-xl transition-all duration-300">
-                <TimelineVertical
-                    data={data}
-                    colorMap={colorMap}
-                    onEdit={handleEdit}
-                />
+                {viewMode === 'vertical' ? (
+                    <TimelineVertical
+                        data={data}
+                        colorMap={colorMap}
+                        onEdit={handleEdit}
+                    />
+                ) : (
+                    <TimelineDisplay
+                        data={data}
+                        colorMap={colorMap}
+                        onEdit={handleEdit}
+                    />
+                )}
             </div>
 
             <TimelineModal

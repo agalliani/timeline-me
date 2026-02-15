@@ -8,9 +8,9 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Edit2 } from 'lucide-react';
+import { Edit2, CalendarIcon } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface TimelineDisplayProps {
     data: TimelineItem[];
@@ -24,167 +24,153 @@ interface TimelineDisplayProps {
 export const TimelineDisplay = forwardRef<HTMLDivElement, TimelineDisplayProps>(({ data, minYear = 2020, maxYear = 2026, className, colorMap = {}, onEdit }, ref) => {
 
     const { bubbles, years, totalMonths, minYear: derivedMin } = useMemo(() => {
+        // Auto-detect range if not provided or reasonable
+        if (data.length > 0) {
+            const startYears = data.map(d => parseInt(d.start.split(/[-/]/)[0]));
+            const endYears = data.map(d => d.end ? parseInt(d.end.split(/[-/]/)[0]) : new Date().getFullYear());
+            minYear = Math.min(...startYears);
+            maxYear = Math.max(...endYears) + 1;
+        }
+
         const ts = new Timesheet(minYear, maxYear, data);
-
-        // Ensure years are calculated correctly for the grid
-        const years = ts.getYears();
-        const bubbles = ts.getGridBubbles();
-        const totalMonths = ts.getTotalMonths();
-
-        return { bubbles, years, totalMonths, minYear: ts.year.min };
+        return {
+            bubbles: ts.getGridBubbles(),
+            years: ts.getYears(),
+            totalMonths: ts.getTotalMonths(),
+            minYear: ts.year.min
+        };
     }, [data, minYear, maxYear]);
 
     if (!data || data.length === 0) {
         return (
-            <div className="text-center text-muted-foreground p-10 border border-dashed rounded-lg bg-muted/20">
-                No timeline data yet. Add some items to visualize!
+            <div className="flex flex-col items-center justify-center p-12 border border-dashed border-white/10 rounded-xl bg-white/5">
+                <p className="text-muted-foreground">Timeline is empty.</p>
             </div>
         );
     }
 
-    // Grid column width configuration
+    // Grid configuration
     const COL_WIDTH = "minmax(40px, 1fr)";
 
-    const getBubbleColorClass = (category: string) => {
+    const getBubbleStyle = (category: string) => {
         const colorName = colorMap[category] || 'slate';
-        // Map to strong background for horizontal bubbles
         switch (colorName) {
-            case 'red': return 'bg-red-500 text-white hover:bg-red-600';
-            case 'orange': return 'bg-orange-500 text-white hover:bg-orange-600';
-            case 'amber': return 'bg-amber-500 text-white hover:bg-amber-600';
-            case 'yellow': return 'bg-yellow-500 text-white hover:bg-yellow-600';
-            case 'lime': return 'bg-lime-500 text-white hover:bg-lime-600';
-            case 'green': return 'bg-green-500 text-white hover:bg-green-600';
-            case 'emerald': return 'bg-emerald-500 text-white hover:bg-emerald-600';
-            case 'teal': return 'bg-teal-500 text-white hover:bg-teal-600';
-            case 'cyan': return 'bg-cyan-500 text-white hover:bg-cyan-600';
-            case 'sky': return 'bg-sky-500 text-white hover:bg-sky-600';
-            case 'blue': return 'bg-blue-500 text-white hover:bg-blue-600';
-            case 'indigo': return 'bg-indigo-500 text-white hover:bg-indigo-600';
-            case 'violet': return 'bg-violet-500 text-white hover:bg-violet-600';
-            case 'purple': return 'bg-purple-500 text-white hover:bg-purple-600';
-            case 'fuchsia': return 'bg-fuchsia-500 text-white hover:bg-fuchsia-600';
-            case 'pink': return 'bg-pink-500 text-white hover:bg-pink-600';
-            case 'rose': return 'bg-rose-500 text-white hover:bg-rose-600';
-            default: return 'bg-slate-500 text-white hover:bg-slate-600';
+            case 'red': return 'bg-red-50/50 border-red-500 text-red-900 hover:bg-red-100/50';
+            case 'blue': return 'bg-blue-50/50 border-blue-500 text-blue-900 hover:bg-blue-100/50';
+            case 'green': return 'bg-emerald-50/50 border-emerald-500 text-emerald-900 hover:bg-emerald-100/50';
+            case 'amber': return 'bg-amber-50/50 border-amber-500 text-amber-900 hover:bg-amber-100/50';
+            case 'purple': return 'bg-purple-50/50 border-purple-500 text-purple-900 hover:bg-purple-100/50';
+            case 'cyan': return 'bg-cyan-50/50 border-cyan-500 text-cyan-900 hover:bg-cyan-100/50';
+            case 'rose': return 'bg-rose-50/50 border-rose-500 text-rose-900 hover:bg-rose-100/50';
+            default: return 'bg-slate-50/50 border-slate-500 text-slate-900 hover:bg-slate-100/50';
         }
     };
 
-    const getTooltipCategoryStyle = (category: string) => {
+    const getTooltipDecorations = (category: string) => {
         const colorName = colorMap[category] || 'slate';
         switch (colorName) {
-            case 'red': return 'border-red-500 text-red-700 bg-red-50 dark:text-red-300 dark:bg-red-900/10';
-            case 'orange': return 'border-orange-500 text-orange-700 bg-orange-50 dark:text-orange-300 dark:bg-orange-900/10';
-            case 'amber': return 'border-amber-500 text-amber-700 bg-amber-50 dark:text-amber-300 dark:bg-amber-900/10';
-            case 'yellow': return 'border-yellow-500 text-yellow-700 bg-yellow-50 dark:text-yellow-300 dark:bg-yellow-900/10';
-            case 'lime': return 'border-lime-500 text-lime-700 bg-lime-50 dark:text-lime-300 dark:bg-lime-900/10';
-            case 'green': return 'border-green-500 text-green-700 bg-green-50 dark:text-green-300 dark:bg-green-900/10';
-            case 'emerald': return 'border-emerald-500 text-emerald-700 bg-emerald-50 dark:text-emerald-300 dark:bg-emerald-900/10';
-            case 'teal': return 'border-teal-500 text-teal-700 bg-teal-50 dark:text-teal-300 dark:bg-teal-900/10';
-            case 'cyan': return 'border-cyan-500 text-cyan-700 bg-cyan-50 dark:text-cyan-300 dark:bg-cyan-900/10';
-            case 'sky': return 'border-sky-500 text-sky-700 bg-sky-50 dark:text-sky-300 dark:bg-sky-900/10';
-            case 'blue': return 'border-blue-500 text-blue-700 bg-blue-50 dark:text-blue-300 dark:bg-blue-900/10';
-            case 'indigo': return 'border-indigo-500 text-indigo-700 bg-indigo-50 dark:text-indigo-300 dark:bg-indigo-900/10';
-            case 'violet': return 'border-violet-500 text-violet-700 bg-violet-50 dark:text-violet-300 dark:bg-violet-900/10';
-            case 'purple': return 'border-purple-500 text-purple-700 bg-purple-50 dark:text-purple-300 dark:bg-purple-900/10';
-            case 'fuchsia': return 'border-fuchsia-500 text-fuchsia-700 bg-fuchsia-50 dark:text-fuchsia-300 dark:bg-fuchsia-900/10';
-            case 'pink': return 'border-pink-500 text-pink-700 bg-pink-50 dark:text-pink-300 dark:bg-pink-900/10';
-            case 'rose': return 'border-rose-500 text-rose-700 bg-rose-50 dark:text-rose-300 dark:bg-rose-900/10';
-            default: return 'border-slate-500 text-slate-700 bg-slate-50 dark:text-slate-300 dark:bg-slate-900/10';
+            case 'red': return { strip: 'bg-red-500', badge: 'text-red-700 border-red-200 bg-red-50' };
+            case 'blue': return { strip: 'bg-blue-500', badge: 'text-blue-700 border-blue-200 bg-blue-50' };
+            case 'green': return { strip: 'bg-emerald-500', badge: 'text-emerald-700 border-emerald-200 bg-emerald-50' };
+            case 'amber': return { strip: 'bg-amber-500', badge: 'text-amber-700 border-amber-200 bg-amber-50' };
+            case 'purple': return { strip: 'bg-purple-500', badge: 'text-purple-700 border-purple-200 bg-purple-50' };
+            case 'cyan': return { strip: 'bg-cyan-500', badge: 'text-cyan-700 border-cyan-200 bg-cyan-50' };
+            case 'rose': return { strip: 'bg-rose-500', badge: 'text-rose-700 border-rose-200 bg-rose-50' };
+            default: return { strip: 'bg-slate-500', badge: 'text-slate-700 border-slate-200 bg-slate-50' };
         }
     };
 
     return (
-        <TooltipProvider delayDuration={300}>
-            <div ref={ref} className="w-full overflow-x-auto border rounded-lg bg-[#1c1917] shadow-xl p-4">
+        <TooltipProvider delayDuration={0}>
+            <div ref={ref} className="w-full overflow-x-auto rounded-xl p-6 custom-scrollbar">
                 <div
-                    className="grid gap-y-2 relative"
+                    className="grid gap-y-3 relative min-w-max"
                     style={{
-                        // Use CSS Grid for columns
                         gridTemplateColumns: `repeat(${totalMonths}, ${COL_WIDTH})`,
-                        // Rows will be auto-generated
-                        gridAutoFlow: "row dense", // Try to pack items closely
+                        gridAutoFlow: "row dense",
                     }}
                 >
-                    {/* Year Markers (First Row) */}
+                    {/* Background Grid Lines (Years) */}
                     {years.map((year, i) => {
-                        // Calculate start column for the year
-                        // (Year - MinYear) * 12 + 1
                         const colStart = (year - derivedMin) * 12 + 1;
+                        return (
                         return (
                             <div
                                 key={year}
-                                className="text-white/90 text-xs font-medium font-mono border-l border-white/20 pl-2 pt-2 pb-4 sticky top-0"
+                                className="border-l border-zinc-200 pl-2 pb-4 sticky top-0 z-10 pointer-events-none"
                                 style={{
                                     gridColumnStart: colStart,
                                     gridColumnEnd: `span 12`,
-                                    gridRow: 1, // Force to first row
+                                    gridRow: '1 / -1', // Span all rows
                                 }}
                             >
-                                {year}
+                                <span className="text-zinc-400 text-xs font-bold font-mono bg-white px-1 rounded">
+                                    {year}
+                                </span>
                             </div>
                         );
                     })}
 
+                    {/* Spacer for Year Labels */}
+                    <div className="h-6 w-full col-span-full" />
+
                     {/* Timeline Events */}
-                    {bubbles.map((bubble, index) => (
-                        <Tooltip key={index}>
-                            <TooltipTrigger asChild>
-                                <div
-                                    onClick={() => onEdit?.(index)}
-                                    className={cn(
-                                        "relative group rounded h-10 flex items-center px-2 transition-all hover:brightness-110 hover:z-10",
-                                        onEdit ? "cursor-pointer hover:ring-2 hover:ring-white/50" : "",
-                                        getBubbleColorClass(bubble.type || '')
-                                    )}
-                                    style={{
-                                        gridColumnStart: bubble.gridColumnStart,
-                                        gridColumnEnd: `span ${bubble.gridColumnSpan}`,
-                                        // We let grid-auto-flow place them in rows
-                                    }}
-                                >
-                                    {/* Bubble Content */}
-                                    <div className="flex flex-col leading-none truncate w-full">
-                                        <span className="text-[10px] text-white/70 uppercase tracking-wider mb-0.5">
-                                            {bubble.dateLabel}
-                                        </span>
-                                        <span className="text-sm font-medium text-white truncate shadow-sm">
-                                            {bubble.label}
-                                        </span>
-                                    </div>
-                                </div>
-                            </TooltipTrigger>
-                            <TooltipContent side="bottom" align="start" className="p-0 border-none bg-transparent shadow-xl z-50">
-                                <Card className={cn("w-72 border-t-4", getTooltipCategoryStyle(bubble.type || 'Work').split(' ')[0])}>
-                                    <CardHeader className="p-4 pb-2 bg-muted/5">
-                                        <CardTitle className="text-base leading-snug">{bubble.label}</CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="p-4 pt-3 text-sm space-y-3">
-                                        <div className="flex items-center justify-between">
-                                            <Badge variant="outline" className={cn("text-xs uppercase tracking-wide font-medium", getTooltipCategoryStyle(bubble.type || 'Work'))}>
-                                                {bubble.type}
-                                            </Badge>
-                                            <span className="text-xs text-muted-foreground font-mono">
-                                                {bubble.dateLabel}
-                                            </span>
-                                        </div>
+                    {bubbles.map((bubble, index) => {
+                        const decor = getTooltipDecorations(bubble.type || 'Work');
 
-                                        {bubble.description && (
-                                            <div className="text-muted-foreground bg-muted/10 p-2 rounded-md max-h-[150px] overflow-y-auto text-xs leading-relaxed whitespace-pre-wrap">
-                                                {bubble.description}
-                                            </div>
+                        return (
+                            <Tooltip key={index}>
+                                <TooltipTrigger asChild>
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: index * 0.05 }}
+                                        onClick={() => onEdit?.(index)}
+                                        className={cn(
+                                            "relative group rounded border-l-2 flex flex-col justify-center px-2 py-1 transition-all hover:scale-[1.01] hover:brightness-110 hover:z-20 cursor-pointer h-14 shadow-sm",
+                                            getBubbleStyle(bubble.type || '')
                                         )}
-
-                                        {/* Edit Hint */}
-                                        <div className="text-[10px] text-muted-foreground pt-2 border-t flex items-center gap-1">
-                                            <Edit2 className="w-3 h-3" />
-                                            Click to edit details
+                                        style={{
+                                            gridColumnStart: bubble.gridColumnStart,
+                                            gridColumnEnd: `span ${bubble.gridColumnSpan}`,
+                                        }}
+                                    >
+                                        <div className="text-[10px] text-zinc-500 uppercase tracking-wider font-mono leading-none mb-1">
+                                            {bubble.dateLabel}
                                         </div>
-                                    </CardContent>
-                                </Card>
-                            </TooltipContent>
-                        </Tooltip>
-                    ))}
+                                        <div className="text-xs md:text-sm font-semibold text-zinc-900 truncate leading-tight">
+                                            {bubble.label}
+                                        </div>
+                                    </motion.div>
+                                </TooltipTrigger>
+                                <TooltipContent side="bottom" align="start" className="bg-transparent border-none p-0 shadow-none z-50">
+                                    <div className="w-72 rounded-lg border border-zinc-200 bg-white shadow-xl overflow-hidden relative">
+                                        <div className={cn("w-1 h-full absolute left-0 top-0", decor.strip)} />
+                                        <div className="p-4 pl-5">
+                                            <h4 className="font-bold text-zinc-900 text-base leading-snug">{bubble.label}</h4>
+
+                                            <div className="flex items-center gap-2 mt-2 mb-3">
+                                                <Badge variant="outline" className={cn("text-[10px] bg-transparent", decor.badge)}>
+                                                    {bubble.type}
+                                                </Badge>
+                                                <span className="text-[10px] font-mono text-zinc-500">{bubble.dateLabel}</span>
+                                            </div>
+
+                                            {bubble.description && (
+                                                <div className="text-xs text-zinc-600 leading-relaxed max-h-40 overflow-y-auto pr-1">
+                                                    {bubble.description}
+                                                </div>
+                                            )}
+
+                                            <div className="mt-4 pt-2 border-t border-zinc-100 text-[10px] text-zinc-400 flex items-center gap-1.5 uppercase tracking-wider font-medium">
+                                                <Edit2 className="w-3 h-3" /> Edit Event
+                                            </div>
+                                        </div>
+                                    </div>
+                                </TooltipContent>
+                            </Tooltip>
+                        )
+                    })}
                 </div>
             </div>
         </TooltipProvider>
