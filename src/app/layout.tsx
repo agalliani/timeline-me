@@ -14,12 +14,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Timeline Me - Visual Career Timeline",
-  description: "Visualize your LinkedIn profile as a stunning vertical timeline.",
-  keywords: ["timeline", "portfolio", "Andrea Galliani", "software engineer", "developer", "projects", "interactive history"],
+  title: "Timeline Me - Free LinkedIn Timeline Generator",
+  description: "Visualize your professional journey in a stunning vertical timeline. Import from LinkedIn PDF or create manually. Privacy-focused, client-side only.",
+  keywords: ["timeline maker", "linkedin visualizer", "career path", "resume timeline", "free timeline generator", "react timeline"],
   openGraph: {
-    title: "Timeline Me - Visual Timeline",
-    description: "Explore professional journeys in a visual vertical timeline.",
+    title: "Timeline Me - Free LinkedIn Timeline Generator",
+    description: "Visualize your professional journey in a stunning vertical timeline. Import from LinkedIn PDF or create manually.",
     url: "https://agalliani.github.io/timeline-me",
     siteName: "Timeline Me",
     locale: "en_US",

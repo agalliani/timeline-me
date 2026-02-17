@@ -18,6 +18,7 @@ import { EmbedModal } from "@/components/embed-modal";
 import { encodeTimelineData, decodeTimelineData } from "@/lib/url-utils";
 import { TemplateModal } from "@/components/template-modal";
 import { TimelineTemplate } from "@/lib/templates";
+import { DEMO_DATA } from "@/lib/demo-data";
 
 import {
     DropdownMenu,
@@ -198,6 +199,52 @@ export function TimelineApp() {
 
     // Extract unique categories for settings
     const uniqueCategories = Array.from(new Set(data.map(d => d.category || "Uncategorized"))).sort();
+
+    if (!data || data.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center py-20 px-4 border border-dashed border-zinc-200 rounded-xl bg-zinc-50/50">
+                <div className="text-center space-y-6 max-w-lg">
+                    <div className="w-16 h-16 bg-zinc-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-zinc-200">
+                        <Upload className="w-8 h-8 text-zinc-400" />
+                    </div>
+
+                    <div className="space-y-2">
+                        <h3 className="text-xl font-bold text-zinc-900">Start Your Timeline</h3>
+                        <p className="text-muted-foreground">
+                            Import your LinkedIn profile PDF to instantly generate a timeline,
+                            or start with a demo to see how it looks.
+                        </p>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+                        <Button
+                            onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(true); }}
+                            size="lg"
+                            className="gap-2 shadow-lg hover:shadow-xl transition-all"
+                        >
+                            <Upload className="w-4 h-4" /> Import from LinkedIn
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                setData(DEMO_DATA);
+                                saveToLocalStorage(DEMO_DATA);
+                                toast.success("Demo timeline loaded!");
+                            }}
+                            variant="outline"
+                            size="lg"
+                            className="gap-2 bg-white"
+                        >
+                            <LayoutList className="w-4 h-4" /> Load Demo Data
+                        </Button>
+                    </div>
+
+                    <p className="text-xs text-muted-foreground pt-4">
+                        No signup required. Data stays in your browser.
+                    </p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="w-full max-w-7xl mx-auto space-y-6">
