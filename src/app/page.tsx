@@ -27,11 +27,11 @@ export default function Home() {
       <main className="container mx-auto max-w-5xl">
         <section className="mb-12 text-center space-y-4">
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">
-            My Professional Journey
+            Your Professional Journey
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            A chronological visualization of my career, projects, and achievements.
-            Explore the milestones that define my path as a software engineer.
+            A chronological visualization for your career, projects, and achievements.
+            Explore the milestones that define your path.
           </p>
         </section>
 
