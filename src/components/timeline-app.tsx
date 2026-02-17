@@ -260,13 +260,13 @@ export function TimelineApp() {
                     <div className="flex gap-2 w-full md:w-auto justify-end">
                         {/* Desktop View: Full Actions */}
                         <div className="hidden md:flex gap-2 items-center">
-                            <Button onClick={() => { setIsModalOpen(false); setIsImportModalOpen(false); setIsColorModalOpen(true); setIsTemplateModalOpen(false); }} variant="outline" size="sm" className="gap-2 border-white/10 bg-white/5 hover:bg-white/10">
+                            <Button onClick={() => { setIsModalOpen(false); setIsImportModalOpen(false); setIsColorModalOpen(true); setIsTemplateModalOpen(false); }} variant="outline" size="sm" className="gap-2">
                                 <Palette className="w-4 h-4" /> Colors
                             </Button>
-                            <Button onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(false); setIsTemplateModalOpen(true); }} variant="outline" size="sm" className="gap-2 border-white/10 bg-white/5 hover:bg-white/10">
+                            <Button onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(false); setIsTemplateModalOpen(true); }} variant="outline" size="sm" className="gap-2">
                                 <LayoutList className="w-4 h-4" /> Templates
                             </Button>
-                            <Button onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(true); setIsTemplateModalOpen(false); }} variant="outline" size="sm" className="gap-2 border-white/10 bg-white/5 hover:bg-white/10">
+                            <Button onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(true); setIsTemplateModalOpen(false); }} variant="outline" size="sm" className="gap-2">
                                 <Upload className="w-4 h-4" /> Import LinkedIn
                             </Button>
                             <Button onClick={handleAdd} size="sm" className="gap-2 bg-white text-black hover:bg-white/90 border-0 shadow-md font-medium">
@@ -279,13 +279,13 @@ export function TimelineApp() {
 
 
                             <Button onClick={handleShare} variant="ghost" size="icon" title="Share URL">
-                                <Share2 className="w-4 h-4 text-white/70" />
+                                <Share2 className="w-4 h-4 text-muted-foreground" />
                             </Button>
                             <Button onClick={() => setIsEmbedModalOpen(true)} variant="ghost" size="icon" title="Embed Timeline">
-                                <Code className="w-4 h-4 text-white/70" />
+                                <Code className="w-4 h-4 text-muted-foreground" />
                             </Button>
                             <Button onClick={handleScreenshot} variant="ghost" size="icon" title="Download Image">
-                                <Download className="w-4 h-4 text-white/70" />
+                                <Download className="w-4 h-4 text-muted-foreground" />
                             </Button>
                             <Button onClick={handleClear} variant="ghost" size="icon" className="text-red-400 hover:text-red-300 hover:bg-red-500/10" title="Clear All">
                                 <Trash2 className="w-4 h-4" />
@@ -300,7 +300,7 @@ export function TimelineApp() {
 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" size="icon" className="border-white/10 bg-white/5">
+                                    <Button variant="outline" size="icon">
                                         <Menu className="w-4 h-4" />
                                     </Button>
                                 </DropdownMenuTrigger>
