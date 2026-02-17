@@ -13,17 +13,51 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+import { siteConfig } from "@/lib/config";
+
 export const metadata: Metadata = {
-  title: "Timeline Me - Free LinkedIn Timeline Generator",
-  description: "Visualize your professional journey in a stunning vertical timeline. Import from LinkedIn PDF or create manually. Privacy-focused, client-side only.",
-  keywords: ["timeline maker", "linkedin visualizer", "career path", "resume timeline", "free timeline generator", "react timeline"],
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: siteConfig.name,
+    template: `%s | ${siteConfig.name}`,
+  },
+  description: siteConfig.description,
+  keywords: siteConfig.keywords,
+  authors: [
+    {
+      name: "Andrea Galliani",
+      url: "https://github.com/agalliani",
+    },
+  ],
+  creator: "Andrea Galliani",
   openGraph: {
-    title: "Timeline Me - Free LinkedIn Timeline Generator",
-    description: "Visualize your professional journey in a stunning vertical timeline. Import from LinkedIn PDF or create manually.",
-    url: "https://agalliani.github.io/timeline-me",
-    siteName: "Timeline Me",
-    locale: "en_US",
     type: "website",
+    locale: "en_US",
+    url: siteConfig.url,
+    title: siteConfig.name,
+    description: siteConfig.description,
+    siteName: siteConfig.name,
+    images: [
+      {
+        url: siteConfig.ogImage,
+        width: 1200,
+        height: 630,
+        alt: siteConfig.name,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteConfig.name,
+    description: siteConfig.description,
+    images: [siteConfig.ogImage],
+    creator: "@agalliani",
+  },
+  icons: {
+    icon: "/favicon.ico",
+  },
+  alternates: {
+    canonical: "/",
   },
   robots: {
     index: true,
