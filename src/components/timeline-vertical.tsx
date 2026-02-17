@@ -160,19 +160,39 @@ export function TimelineVertical({ data, className, colorMap = {}, onEdit, reado
 
 
     const getColorForEvent = (category: string, colIndex: number): string => {
+        // 1. Explicit overwrite from Color Settings
         if (colorMap[category] && colorMap[category] !== 'default') return colorMap[category];
+
+        // 2. Implicit color name in category (case-insensitive)
+        const validColors = ['slate', 'red', 'orange', 'amber', 'yellow', 'lime', 'green', 'emerald', 'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet', 'purple', 'fuchsia', 'pink', 'rose'];
+        if (validColors.includes(category.toLowerCase())) {
+            return category.toLowerCase();
+        }
+
+        // 3. Auto-cycle
         return AUTO_COLORS[colIndex % AUTO_COLORS.length];
     };
 
     const getEventStyleClasses = (category: string, colIndex: number) => {
         const color = getColorForEvent(category, colIndex);
         switch (color) {
+            case 'slate': return 'bg-slate-50/50 border-slate-500 text-slate-900 hover:bg-slate-100/50';
             case 'red': return 'bg-red-50/50 border-red-500 text-red-900 hover:bg-red-100/50';
-            case 'blue': return 'bg-blue-50/50 border-blue-500 text-blue-900 hover:bg-blue-100/50';
-            case 'green': return 'bg-emerald-50/50 border-emerald-500 text-emerald-900 hover:bg-emerald-100/50';
+            case 'orange': return 'bg-orange-50/50 border-orange-500 text-orange-900 hover:bg-orange-100/50';
             case 'amber': return 'bg-amber-50/50 border-amber-500 text-amber-900 hover:bg-amber-100/50';
-            case 'purple': return 'bg-purple-50/50 border-purple-500 text-purple-900 hover:bg-purple-100/50';
+            case 'yellow': return 'bg-yellow-50/50 border-yellow-500 text-yellow-900 hover:bg-yellow-100/50';
+            case 'lime': return 'bg-lime-50/50 border-lime-500 text-lime-900 hover:bg-lime-100/50';
+            case 'green': return 'bg-green-50/50 border-green-500 text-green-900 hover:bg-green-100/50';
+            case 'emerald': return 'bg-emerald-50/50 border-emerald-500 text-emerald-900 hover:bg-emerald-100/50';
+            case 'teal': return 'bg-teal-50/50 border-teal-500 text-teal-900 hover:bg-teal-100/50';
             case 'cyan': return 'bg-cyan-50/50 border-cyan-500 text-cyan-900 hover:bg-cyan-100/50';
+            case 'sky': return 'bg-sky-50/50 border-sky-500 text-sky-900 hover:bg-sky-100/50';
+            case 'blue': return 'bg-blue-50/50 border-blue-500 text-blue-900 hover:bg-blue-100/50';
+            case 'indigo': return 'bg-indigo-50/50 border-indigo-500 text-indigo-900 hover:bg-indigo-100/50';
+            case 'violet': return 'bg-violet-50/50 border-violet-500 text-violet-900 hover:bg-violet-100/50';
+            case 'purple': return 'bg-purple-50/50 border-purple-500 text-purple-900 hover:bg-purple-100/50';
+            case 'fuchsia': return 'bg-fuchsia-50/50 border-fuchsia-500 text-fuchsia-900 hover:bg-fuchsia-100/50';
+            case 'pink': return 'bg-pink-50/50 border-pink-500 text-pink-900 hover:bg-pink-100/50';
             case 'rose': return 'bg-rose-50/50 border-rose-500 text-rose-900 hover:bg-rose-100/50';
             default: return 'bg-slate-50/50 border-slate-500 text-slate-900 hover:bg-slate-100/50';
         }
@@ -182,12 +202,23 @@ export function TimelineVertical({ data, className, colorMap = {}, onEdit, reado
         const color = getColorForEvent(category, colIndex);
         // Returns classes for the colored strip and badge
         switch (color) {
+            case 'slate': return { strip: 'bg-slate-500', badge: 'text-slate-700 border-slate-200 bg-slate-50' };
             case 'red': return { strip: 'bg-red-500', badge: 'text-red-700 border-red-200 bg-red-50' };
-            case 'blue': return { strip: 'bg-blue-500', badge: 'text-blue-700 border-blue-200 bg-blue-50' };
-            case 'green': return { strip: 'bg-emerald-500', badge: 'text-emerald-700 border-emerald-200 bg-emerald-50' };
+            case 'orange': return { strip: 'bg-orange-500', badge: 'text-orange-700 border-orange-200 bg-orange-50' };
             case 'amber': return { strip: 'bg-amber-500', badge: 'text-amber-700 border-amber-200 bg-amber-50' };
-            case 'purple': return { strip: 'bg-purple-500', badge: 'text-purple-700 border-purple-200 bg-purple-50' };
+            case 'yellow': return { strip: 'bg-yellow-500', badge: 'text-yellow-700 border-yellow-200 bg-yellow-50' };
+            case 'lime': return { strip: 'bg-lime-500', badge: 'text-lime-700 border-lime-200 bg-lime-50' };
+            case 'green': return { strip: 'bg-green-500', badge: 'text-green-700 border-green-200 bg-green-50' };
+            case 'emerald': return { strip: 'bg-emerald-500', badge: 'text-emerald-700 border-emerald-200 bg-emerald-50' };
+            case 'teal': return { strip: 'bg-teal-500', badge: 'text-teal-700 border-teal-200 bg-teal-50' };
             case 'cyan': return { strip: 'bg-cyan-500', badge: 'text-cyan-700 border-cyan-200 bg-cyan-50' };
+            case 'sky': return { strip: 'bg-sky-500', badge: 'text-sky-700 border-sky-200 bg-sky-50' };
+            case 'blue': return { strip: 'bg-blue-500', badge: 'text-blue-700 border-blue-200 bg-blue-50' };
+            case 'indigo': return { strip: 'bg-indigo-500', badge: 'text-indigo-700 border-indigo-200 bg-indigo-50' };
+            case 'violet': return { strip: 'bg-violet-500', badge: 'text-violet-700 border-violet-200 bg-violet-50' };
+            case 'purple': return { strip: 'bg-purple-500', badge: 'text-purple-700 border-purple-200 bg-purple-50' };
+            case 'fuchsia': return { strip: 'bg-fuchsia-500', badge: 'text-fuchsia-700 border-fuchsia-200 bg-fuchsia-50' };
+            case 'pink': return { strip: 'bg-pink-500', badge: 'text-pink-700 border-pink-200 bg-pink-50' };
             case 'rose': return { strip: 'bg-rose-500', badge: 'text-rose-700 border-rose-200 bg-rose-50' };
             default: return { strip: 'bg-slate-500', badge: 'text-slate-700 border-slate-200 bg-slate-50' };
         }

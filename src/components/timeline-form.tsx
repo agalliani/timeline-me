@@ -141,10 +141,24 @@ export function TimelineForm({ onSubmit, defaultValues, submitLabel = "Add Timel
                                     </FormControl>
                                     <SelectContent>
                                         <SelectItem value="default">Default (Blue)</SelectItem>
-                                        <SelectItem value="lorem">Green</SelectItem>
-                                        <SelectItem value="ipsum">Cyan</SelectItem>
-                                        <SelectItem value="dolor">Yellow</SelectItem>
-                                        <SelectItem value="sit">Purple</SelectItem>
+                                        <SelectItem value="red">Red</SelectItem>
+                                        <SelectItem value="orange">Orange</SelectItem>
+                                        <SelectItem value="amber">Amber</SelectItem>
+                                        <SelectItem value="yellow">Yellow</SelectItem>
+                                        <SelectItem value="lime">Lime</SelectItem>
+                                        <SelectItem value="green">Green</SelectItem>
+                                        <SelectItem value="emerald">Emerald</SelectItem>
+                                        <SelectItem value="teal">Teal</SelectItem>
+                                        <SelectItem value="cyan">Cyan</SelectItem>
+                                        <SelectItem value="sky">Sky</SelectItem>
+                                        <SelectItem value="blue">Blue</SelectItem>
+                                        <SelectItem value="indigo">Indigo</SelectItem>
+                                        <SelectItem value="violet">Violet</SelectItem>
+                                        <SelectItem value="purple">Purple</SelectItem>
+                                        <SelectItem value="fuchsia">Fuchsia</SelectItem>
+                                        <SelectItem value="pink">Pink</SelectItem>
+                                        <SelectItem value="rose">Rose</SelectItem>
+                                        <SelectItem value="slate">Slate</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <FormMessage />
