@@ -12,16 +12,12 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
+    FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+import { Check } from "lucide-react";
 
 const formSchema = z.object({
     start: z.string().min(1, { message: "Start date is required" }),
@@ -38,6 +34,27 @@ interface TimelineFormProps {
     onDelete?: () => void;
 }
 
+const COLOR_OPTIONS = [
+    { value: "slate", class: "bg-zinc-500" },
+    { value: "red", class: "bg-red-500" },
+    { value: "orange", class: "bg-orange-500" },
+    { value: "amber", class: "bg-amber-500" },
+    { value: "yellow", class: "bg-yellow-500" },
+    { value: "lime", class: "bg-lime-500" },
+    { value: "green", class: "bg-green-500" },
+    { value: "emerald", class: "bg-emerald-500" },
+    { value: "teal", class: "bg-teal-500" },
+    { value: "cyan", class: "bg-cyan-500" },
+    { value: "sky", class: "bg-sky-500" },
+    { value: "blue", class: "bg-blue-500" },
+    { value: "indigo", class: "bg-indigo-500" },
+    { value: "violet", class: "bg-violet-500" },
+    { value: "purple", class: "bg-purple-500" },
+    { value: "fuchsia", class: "bg-fuchsia-500" },
+    { value: "pink", class: "bg-pink-500" },
+    { value: "rose", class: "bg-rose-500" },
+];
+
 export function TimelineForm({ onSubmit, defaultValues, submitLabel = "Add Timeline Event", onDelete }: TimelineFormProps) {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -45,15 +62,10 @@ export function TimelineForm({ onSubmit, defaultValues, submitLabel = "Add Timel
             start: defaultValues?.start || "",
             end: defaultValues?.end || "",
             label: defaultValues?.label || "",
-            category: defaultValues?.category || "default",
+            category: defaultValues?.category || "blue", // Default to blue instead of "default"
             description: defaultValues?.description || "",
         },
     });
-
-    // Reset form when defaultValues change (important for modal reuse)
-    // We can use a key on the component or useEffect, but key is cleaner in parent.
-    // Actually, let's add a useEffect to be safe if parent doesn't key.
-    // ... import useEffect ... 
 
     function handleSubmit(values: z.infer<typeof formSchema>) {
         onSubmit({
@@ -63,64 +75,64 @@ export function TimelineForm({ onSubmit, defaultValues, submitLabel = "Add Timel
             category: values.category,
             description: values.description,
         });
-        // Only reset if NOT editing (no defaultValues provided) or if explicitly desired.
-        // Usually in a modal, we close the modal, so reset might not matter, 
-        // but if we reuse the form for "Add", we want it clear.
+
         if (!defaultValues) {
             form.reset({
                 start: "",
                 end: "",
                 label: "",
-                category: "default"
+                category: "blue"
             });
         }
     }
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                        control={form.control}
-                        name="start"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Start (YYYY-MM)</FormLabel>
-                                <FormControl>
-                                    <Input type="month" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+                <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                            control={form.control}
+                            name="start"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Start Date</FormLabel>
+                                    <FormControl>
+                                        <Input type="month" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
-                    <FormField
-                        control={form.control}
-                        name="end"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>End (YYYY-MM)</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        type="month"
-                                        {...field}
-                                        value={field.value || ""}
-                                        onChange={(e) => field.onChange(e.target.value || null)}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                        <FormField
+                            control={form.control}
+                            name="end"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>End Date <span className="text-muted-foreground font-normal text-xs">(Optional)</span></FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="month"
+                                            {...field}
+                                            value={field.value || ""}
+                                            onChange={(e) => field.onChange(e.target.value || null)}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
 
                     <FormField
                         control={form.control}
                         name="label"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Label</FormLabel>
+                                <FormLabel>Title</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Job, Event, etc." {...field} />
+                                    <Input placeholder="Job Title, Project Name, etc." className="font-medium" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -132,35 +144,28 @@ export function TimelineForm({ onSubmit, defaultValues, submitLabel = "Add Timel
                         name="category"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Category</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select a category" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="default">Default (Blue)</SelectItem>
-                                        <SelectItem value="red">Red</SelectItem>
-                                        <SelectItem value="orange">Orange</SelectItem>
-                                        <SelectItem value="amber">Amber</SelectItem>
-                                        <SelectItem value="yellow">Yellow</SelectItem>
-                                        <SelectItem value="lime">Lime</SelectItem>
-                                        <SelectItem value="green">Green</SelectItem>
-                                        <SelectItem value="emerald">Emerald</SelectItem>
-                                        <SelectItem value="teal">Teal</SelectItem>
-                                        <SelectItem value="cyan">Cyan</SelectItem>
-                                        <SelectItem value="sky">Sky</SelectItem>
-                                        <SelectItem value="blue">Blue</SelectItem>
-                                        <SelectItem value="indigo">Indigo</SelectItem>
-                                        <SelectItem value="violet">Violet</SelectItem>
-                                        <SelectItem value="purple">Purple</SelectItem>
-                                        <SelectItem value="fuchsia">Fuchsia</SelectItem>
-                                        <SelectItem value="pink">Pink</SelectItem>
-                                        <SelectItem value="rose">Rose</SelectItem>
-                                        <SelectItem value="slate">Slate</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <FormLabel>Color Tag</FormLabel>
+                                <FormControl>
+                                    <div className="flex flex-wrap gap-2 pt-1">
+                                        {COLOR_OPTIONS.map((color) => (
+                                            <div
+                                                key={color.value}
+                                                className={cn(
+                                                    "w-6 h-6 rounded-full cursor-pointer flex items-center justify-center transition-all hover:scale-110",
+                                                    color.class,
+                                                    field.value === color.value ? "ring-2 ring-offset-2 ring-zinc-400 scale-110" : "opacity-70 hover:opacity-100"
+                                                )}
+                                                onClick={() => field.onChange(color.value)}
+                                                title={color.value}
+                                            >
+                                                {field.value === color.value && <Check className="w-3 h-3 text-white stroke-[3px]" />}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </FormControl>
+                                <FormDescription className="text-xs">
+                                    Select a color to visually categorize this event.
+                                </FormDescription>
                                 <FormMessage />
                             </FormItem>
                         )}
@@ -170,10 +175,14 @@ export function TimelineForm({ onSubmit, defaultValues, submitLabel = "Add Timel
                         control={form.control}
                         name="description"
                         render={({ field }) => (
-                            <FormItem className="col-span-1 md:col-span-2">
+                            <FormItem>
                                 <FormLabel>Description</FormLabel>
                                 <FormControl>
-                                    <Textarea placeholder="Details about this event..." className="resize-y" {...field} />
+                                    <Textarea
+                                        placeholder="Add details, achievements, or tech stack..."
+                                        className="resize-y min-h-[100px]"
+                                        {...field}
+                                    />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -181,18 +190,22 @@ export function TimelineForm({ onSubmit, defaultValues, submitLabel = "Add Timel
                     />
                 </div>
 
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center pt-2 border-t border-zinc-100 mt-6">
                     {onDelete && (
                         <Button
                             type="button"
                             variant="destructive"
+                            size="sm"
+                            className="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border-0"
                             onClick={onDelete}
                         >
-                            Delete Event
+                            Delete
                         </Button>
                     )}
                     <div className="flex-1 flex justify-end">
-                        <Button type="submit">{submitLabel}</Button>
+                        <Button type="submit" size="default" className="px-6">
+                            {submitLabel}
+                        </Button>
                     </div>
                 </div>
             </form>

@@ -1,4 +1,3 @@
-"use client";
 
 import React, { useState, useEffect } from "react";
 import {
@@ -24,7 +23,7 @@ interface ColorSettingsModalProps {
 }
 
 const TAILWIND_COLORS = [
-    { name: "slate", class: "bg-slate-500" },
+    { name: "slate", class: "bg-zinc-500" },
     { name: "red", class: "bg-red-500" },
     { name: "orange", class: "bg-orange-500" },
     { name: "amber", class: "bg-amber-500" },
@@ -72,19 +71,19 @@ export function ColorSettingsModal({
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-md bg-zinc-900 text-zinc-50 border-zinc-800">
+        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>Category Colors</DialogTitle>
                     <DialogDescription>
-                        Assign colors to your timeline categories.
+                        Assign specific colors to your timeline categories to override defaults.
                     </DialogDescription>
                 </DialogHeader>
                 <ScrollArea className="max-h-[60vh] pr-4">
                     <div className="space-y-6 py-4">
                         {categories.map((category) => (
-                            <div key={category} className="space-y-3">
-                                <Label className="text-base font-medium capitalize">
+                            <div key={category} className="space-y-3 p-3 rounded-lg bg-zinc-50 border border-zinc-100">
+                                <Label className="text-sm font-semibold capitalize text-zinc-900 block mb-2">
                                     {category || "Uncategorized"}
                                 </Label>
                                 <div className="flex flex-wrap gap-2">
@@ -95,15 +94,16 @@ export function ColorSettingsModal({
                                                 key={color.name}
                                                 onClick={() => handleColorSelect(category, color.name)}
                                                 className={cn(
-                                                    "w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center",
+                                                    "w-6 h-6 rounded-full transition-all flex items-center justify-center",
                                                     color.class,
                                                     isSelected
-                                                        ? "border-foreground ring-2 ring-offset-2 ring-primary"
-                                                        : "border-transparent hover:scale-110"
+                                                        ? "ring-2 ring-offset-2 ring-zinc-400 scale-110"
+                                                        : "opacity-70 hover:opacity-100 hover:scale-105"
                                                 )}
                                                 title={color.name}
+                                                type="button"
                                             >
-                                                {isSelected && <Check className="w-4 h-4 text-white" />}
+                                                {isSelected && <Check className="w-3 h-3 text-white stroke-[3px]" />}
                                             </button>
                                         );
                                     })}
@@ -111,8 +111,10 @@ export function ColorSettingsModal({
                             </div>
                         ))}
                         {categories.length === 0 && (
-                            <div className="text-center text-muted-foreground py-8">
-                                No categories found. Add items to your timeline first.
+                            <div className="text-center py-8 bg-zinc-50 rounded-lg border border-dashed border-zinc-200">
+                                <p className="text-sm text-muted-foreground">
+                                    No categories found. Add items to your timeline first to customize their colors.
+                                </p>
                             </div>
                         )}
                     </div>

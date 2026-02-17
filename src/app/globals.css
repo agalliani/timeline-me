@@ -48,7 +48,8 @@
 }
 
 :root {
-  --radius: 0.5rem;
+  --radius: 0.75rem;
+  /* Zinc-based light mode for professional clean look */
   --background: 0 0% 100%;
   --foreground: 240 10% 3.9%;
   --card: 0 0% 100%;
@@ -67,12 +68,14 @@
   --destructive-foreground: 0 0% 98%;
   --border: 240 5.9% 90%;
   --input: 240 5.9% 90%;
-  --ring: 240 10% 3.9%;
+  --ring: 240 5.9% 10%;
+  
   --chart-1: 12 76% 61%;
   --chart-2: 173 58% 39%;
   --chart-3: 197 37% 24%;
   --chart-4: 43 74% 66%;
   --chart-5: 27 87% 67%;
+  
   --sidebar: 0 0% 98%;
   --sidebar-foreground: 240 5.3% 26.1%;
   --sidebar-primary: 240 5.9% 10%;
@@ -86,8 +89,7 @@
 .dark {
   --background: 240 10% 3.9%;
   --foreground: 0 0% 98%;
-  --card: 240 10% 5%;
-  /* Slightly lighter than background */
+  --card: 240 10% 3.9%;
   --card-foreground: 0 0% 98%;
   --popover: 240 10% 3.9%;
   --popover-foreground: 0 0% 98%;
@@ -104,11 +106,13 @@
   --border: 240 3.7% 15.9%;
   --input: 240 3.7% 15.9%;
   --ring: 240 4.9% 83.9%;
+  
   --chart-1: 220 70% 50%;
   --chart-2: 160 60% 45%;
   --chart-3: 30 80% 55%;
   --chart-4: 280 65% 60%;
   --chart-5: 340 75% 55%;
+  
   --sidebar: 240 5.9% 10%;
   --sidebar-foreground: 240 4.8% 95.9%;
   --sidebar-primary: 224.3 76.3% 48%;
@@ -123,33 +127,12 @@
   * {
     @apply border-border outline-ring/50;
   }
-
   body {
     @apply bg-background text-foreground;
   }
 }
 
-/* Timeline Custom Styles - Colors */
-.bubble-default {
-  background-color: #2e80f3;
-}
-
-.bubble-lorem {
-  background-color: #9aca27;
-}
-
-.bubble-ipsum {
-  background-color: #3cb6e3;
-}
-
-.bubble-dolor {
-  background-color: #f4cf30;
-}
-
-.bubble-sit {
-  background-color: #a969ca;
-}
-
-.bubble-empty {
-  background-color: transparent;
+/* Timeline Custom Styles */
+.timeline-grid-line {
+  @apply border-t border-dashed border-border/40;
 }

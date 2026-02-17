@@ -175,7 +175,7 @@ export function TimelineApp() {
 
                 const dataUrl = await toPng(timelineRef.current, {
                     cacheBust: true,
-                    backgroundColor: '#1c1917', // Dark background for consistency
+                    backgroundColor: '#ffffff', // White background for clean export
                     width: timelineRef.current.scrollWidth,
                     height: timelineRef.current.scrollHeight,
                     style: {
@@ -202,25 +202,25 @@ export function TimelineApp() {
 
     if (!data || data.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-20 px-4 border border-dashed border-zinc-200 rounded-xl bg-zinc-50/50">
+            <div className="flex flex-col items-center justify-center py-20 px-4 border border-dashed border-zinc-200 rounded-xl bg-white shadow-sm">
                 <div className="text-center space-y-6 max-w-lg">
-                    <div className="w-16 h-16 bg-zinc-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-zinc-200">
+                    <div className="w-20 h-20 bg-zinc-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm border border-zinc-100">
                         <Upload className="w-8 h-8 text-zinc-400" />
                     </div>
 
                     <div className="space-y-2">
-                        <h3 className="text-xl font-bold text-zinc-900">Start Your Timeline</h3>
-                        <p className="text-muted-foreground">
-                            Import your LinkedIn profile PDF to instantly generate a timeline,
-                            or start with a demo to see how it looks.
+                        <h3 className="text-xl font-bold text-zinc-900 tracking-tight">Start Your Timeline</h3>
+                        <p className="text-muted-foreground text-sm leading-relaxed">
+                            Import your LinkedIn profile PDF to instantly generate a professional timeline,
+                            or start with a demo to explore the features.
                         </p>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
                         <Button
                             onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(true); }}
                             size="lg"
-                            className="gap-2 shadow-lg hover:shadow-xl transition-all"
+                            className="gap-2 shadow-sm hover:shadow-md transition-all font-medium"
                         >
                             <Upload className="w-4 h-4" /> Import from LinkedIn
                         </Button>
@@ -232,14 +232,14 @@ export function TimelineApp() {
                             }}
                             variant="outline"
                             size="lg"
-                            className="gap-2 bg-white"
+                            className="gap-2 bg-white hover:bg-zinc-50 font-medium"
                         >
                             <LayoutList className="w-4 h-4" /> Load Demo Data
                         </Button>
                     </div>
 
-                    <p className="text-xs text-muted-foreground pt-4">
-                        No signup required. Data stays in your browser.
+                    <p className="text-[10px] uppercase tracking-widest text-zinc-400 pt-8">
+                        No signup required • Data stays local
                     </p>
                 </div>
             </div>
@@ -248,65 +248,63 @@ export function TimelineApp() {
 
     return (
         <div className="w-full max-w-7xl mx-auto space-y-6">
-            < Card className="bg-background/60 backdrop-blur-xl border-white/10 shadow-sm sticky top-4 z-50">
-                <CardContent className="p-4 flex flex-wrap gap-4 items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center border border-white/5">
-                            <span className="font-mono font-bold text-white">T</span>
+            < Card className="bg-white/80 backdrop-blur-xl border-zinc-200 shadow-sm sticky top-4 z-50">
+                <CardContent className="p-3 sm:p-4 flex flex-wrap gap-4 items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-lg bg-zinc-900 flex items-center justify-center shadow-md">
+                            <span className="font-mono font-bold text-white text-lg">T</span>
                         </div>
-                        <h1 className="font-bold text-lg tracking-tight hidden sm:block">Timeline Me</h1>
+                        <h1 className="font-bold text-lg tracking-tight hidden sm:block text-zinc-800">Timeline Me</h1>
                     </div>
 
                     <div className="flex gap-2 w-full md:w-auto justify-end">
                         {/* Desktop View: Full Actions */}
                         <div className="hidden md:flex gap-2 items-center">
-                            <Button onClick={() => { setIsModalOpen(false); setIsImportModalOpen(false); setIsColorModalOpen(true); setIsTemplateModalOpen(false); }} variant="outline" size="sm" className="gap-2">
+                            <Button onClick={() => { setIsModalOpen(false); setIsImportModalOpen(false); setIsColorModalOpen(true); setIsTemplateModalOpen(false); }} variant="outline" size="sm" className="gap-2 text-zinc-600 border-zinc-200 hover:bg-zinc-50 hover:text-zinc-900">
                                 <Palette className="w-4 h-4" /> Colors
                             </Button>
-                            <Button onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(false); setIsTemplateModalOpen(true); }} variant="outline" size="sm" className="gap-2">
+                            <Button onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(false); setIsTemplateModalOpen(true); }} variant="outline" size="sm" className="gap-2 text-zinc-600 border-zinc-200 hover:bg-zinc-50 hover:text-zinc-900">
                                 <LayoutList className="w-4 h-4" /> Templates
                             </Button>
-                            <Button onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(true); setIsTemplateModalOpen(false); }} variant="outline" size="sm" className="gap-2">
+                            <Button onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(true); setIsTemplateModalOpen(false); }} variant="outline" size="sm" className="gap-2 text-zinc-600 border-zinc-200 hover:bg-zinc-50 hover:text-zinc-900">
                                 <Upload className="w-4 h-4" /> Import LinkedIn
                             </Button>
-                            <Button onClick={handleAdd} size="sm" className="gap-2 bg-white text-black hover:bg-white/90 border-0 shadow-md font-medium">
+                            <Button onClick={handleAdd} size="sm" className="gap-2 bg-zinc-900 text-white hover:bg-zinc-800 border-0 shadow-sm font-medium">
                                 <Plus className="w-4 h-4" /> Add Event
                             </Button>
 
 
+                            <div className="w-px h-6 bg-zinc-200 mx-1" />
 
-
-
-
-                            <Button onClick={handleShare} variant="ghost" size="icon" title="Share URL">
-                                <Share2 className="w-4 h-4 text-muted-foreground" />
+                            <Button onClick={handleShare} variant="ghost" size="icon" title="Share URL" className="text-zinc-400 hover:text-zinc-700">
+                                <Share2 className="w-4 h-4" />
                             </Button>
-                            <Button onClick={() => setIsEmbedModalOpen(true)} variant="ghost" size="icon" title="Embed Timeline">
-                                <Code className="w-4 h-4 text-muted-foreground" />
+                            <Button onClick={() => setIsEmbedModalOpen(true)} variant="ghost" size="icon" title="Embed Timeline" className="text-zinc-400 hover:text-zinc-700">
+                                <Code className="w-4 h-4" />
                             </Button>
-                            <Button onClick={handleScreenshot} variant="ghost" size="icon" title="Download Image">
-                                <Download className="w-4 h-4 text-muted-foreground" />
+                            <Button onClick={handleScreenshot} variant="ghost" size="icon" title="Download Image" className="text-zinc-400 hover:text-zinc-700">
+                                <Download className="w-4 h-4" />
                             </Button>
-                            <Button onClick={handleClear} variant="ghost" size="icon" className="text-red-400 hover:text-red-300 hover:bg-red-500/10" title="Clear All">
+                            <Button onClick={handleClear} variant="ghost" size="icon" className="text-red-400 hover:text-red-500 hover:bg-red-50" title="Clear All">
                                 <Trash2 className="w-4 h-4" />
                             </Button>
                         </div>
 
                         {/* Mobile View: Compact Actions */}
                         <div className="flex md:hidden gap-2 items-center w-full justify-between">
-                            <Button onClick={handleAdd} size="sm" className="flex-1 bg-white text-black border-0 shadow-md">
+                            <Button onClick={handleAdd} size="sm" className="flex-1 bg-zinc-900 text-white shadow-sm hover:bg-zinc-800">
                                 <Plus className="w-4 h-4 mr-2" /> Add
                             </Button>
 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" size="icon">
-                                        <Menu className="w-4 h-4" />
+                                    <Button variant="outline" size="icon" className="border-zinc-200">
+                                        <Menu className="w-4 h-4 text-zinc-600" />
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-56 bg-[#18181b] border-white/10 text-white">
+                                <DropdownMenuContent align="end" className="w-56">
                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                    <DropdownMenuSeparator className="bg-white/10" />
+                                    <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={() => { setIsModalOpen(false); setIsImportModalOpen(false); setIsColorModalOpen(true); setIsTemplateModalOpen(false); }}>
                                         <Palette className="w-4 h-4 mr-2" /> Colors
                                     </DropdownMenuItem>
@@ -316,7 +314,7 @@ export function TimelineApp() {
                                     <DropdownMenuItem onClick={() => { setIsModalOpen(false); setIsColorModalOpen(false); setIsImportModalOpen(true); }}>
                                         <Upload className="w-4 h-4 mr-2" /> Import LinkedIn
                                     </DropdownMenuItem>
-                                    <DropdownMenuSeparator className="bg-white/10" />
+                                    <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={handleShare}>
                                         <Share2 className="w-4 h-4 mr-2" /> Share Link
                                     </DropdownMenuItem>
@@ -326,8 +324,8 @@ export function TimelineApp() {
                                     <DropdownMenuItem onClick={handleScreenshot}>
                                         <Download className="w-4 h-4 mr-2" /> Download Image
                                     </DropdownMenuItem>
-                                    <DropdownMenuSeparator className="bg-white/10" />
-                                    <DropdownMenuItem onClick={handleClear} className="text-red-400 focus:text-red-400 focus:bg-red-500/10">
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem onClick={handleClear} className="text-red-600 focus:text-red-600 focus:bg-red-50">
                                         <Trash2 className="w-4 h-4 mr-2" /> Clear All Data
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
