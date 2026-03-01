@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Timeline Me
+
+Visualize your professional journey in a stunning vertical timeline. Import from LinkedIn PDF or create manually. Privacy-focused, client-side only.
+
+**Live Demo**: [https://agalliani.github.io/timeline-me](https://agalliani.github.io/timeline-me)
+
+## Features
+
+- 📄 **LinkedIn PDF Import** — Upload your LinkedIn profile PDF to auto-generate a timeline
+- ✏️ **Manual Creation** — Add, edit, and delete timeline events
+- 🎨 **Color Customization** — Category-based color settings
+- 📐 **Vertical Timeline** — Professional chronological visualization
+- 📸 **Export as PNG** — Download your timeline as an image
+- 🔗 **Share & Embed** — URL-based sharing and iframe embedding
+- 🌗 **Dark Mode** — System-aware theme support
+- 🔒 **Privacy First** — All data stays client-side, no server needed
+
+## Tech Stack
+
+- [Next.js 16](https://nextjs.org/) (App Router, static export)
+- [React 19](https://react.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS 4](https://tailwindcss.com/)
+- [Shadcn/UI](https://ui.shadcn.com/) + [Radix UI](https://www.radix-ui.com/)
+- [Framer Motion](https://www.framer.com/motion/)
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Build & Deploy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The project is configured for static export and deployed to GitHub Pages:
 
-## Learn More
+```bash
+npm run build   # Outputs to ./out
+```
 
-To learn more about Next.js, take a look at the following resources:
+Deployment is automated via GitHub Actions on push to `master`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Analytics & SEO
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Google Analytics 4** — Integrated via gtag.js with custom event tracking for user funnel analysis. See [docs/GROWTH_PLAN.md](docs/GROWTH_PLAN.md) for the full strategy.
+- **SEO** — robots.txt, sitemap.xml, OpenGraph tags, Twitter Cards, and JSON-LD structured data are all configured.
+- **Google Search Console** — Submit the sitemap at `https://agalliani.github.io/timeline-me/sitemap.xml`.
 
-## Deploy on Vercel
+To configure GA4, update the Measurement ID in `src/lib/config.ts`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Documentation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Growth & Analytics Plan](docs/GROWTH_PLAN.md)
+- [Analytics Implementation Guide](docs/ANALYTICS_IMPLEMENTATION.md)
+
+## License
+
+MIT
