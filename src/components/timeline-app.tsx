@@ -186,6 +186,11 @@ export function TimelineApp() {
         toast.success("Share link copied to clipboard!");
     };
 
+    const handleEmbed = () => {
+        trackEmbed();
+        setIsEmbedModalOpen(true);
+    };
+
     const handleScreenshot = async () => {
         if (timelineRef.current) {
             try {
@@ -300,7 +305,7 @@ export function TimelineApp() {
                             <Button onClick={handleShare} variant="ghost" size="icon" title="Share URL" className="text-zinc-400 hover:text-zinc-700">
                                 <Share2 className="w-4 h-4" />
                             </Button>
-                            <Button onClick={() => { trackEmbed(); setIsEmbedModalOpen(true); }} variant="ghost" size="icon" title="Embed Timeline" className="text-zinc-400 hover:text-zinc-700">
+                            <Button onClick={handleEmbed} variant="ghost" size="icon" title="Embed Timeline" className="text-zinc-400 hover:text-zinc-700">
                                 <Code className="w-4 h-4" />
                             </Button>
                             <Button onClick={handleScreenshot} variant="ghost" size="icon" title="Download Image" className="text-zinc-400 hover:text-zinc-700">
@@ -339,7 +344,7 @@ export function TimelineApp() {
                                     <DropdownMenuItem onClick={handleShare}>
                                         <Share2 className="w-4 h-4 mr-2" /> Share Link
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => { trackEmbed(); setIsEmbedModalOpen(true); }}>
+                                    <DropdownMenuItem onClick={handleEmbed}>
                                         <Code className="w-4 h-4 mr-2" /> Embed Timeline
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={handleScreenshot}>
