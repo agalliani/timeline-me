@@ -19,6 +19,18 @@ import { encodeTimelineData, decodeTimelineData } from "@/lib/url-utils";
 import { TemplateModal } from "@/components/template-modal";
 import { TimelineTemplate } from "@/lib/templates";
 import { DEMO_DATA } from "@/lib/demo-data";
+import {
+    trackLinkedInImport,
+    trackLoadDemo,
+    trackLoadTemplate,
+    trackAddEvent,
+    trackEditEvent,
+    trackDeleteEvent,
+    trackShare,
+    trackEmbed,
+    trackExportImage,
+    trackClearAll,
+} from "@/lib/analytics";
 
 import {
     DropdownMenu,
@@ -110,9 +122,11 @@ export function TimelineApp() {
         if (selectedEventIndex !== null) {
             // Edit existing
             newData[selectedEventIndex] = item;
+            trackEditEvent();
         } else {
             // Add new
             newData.push(item);
+            trackAddEvent();
         }
 
         // Auto-Sort by Start Date
@@ -128,6 +142,7 @@ export function TimelineApp() {
         const newData = data.filter((_, i) => i !== index);
         setData(newData);
         saveToLocalStorage(newData);
+        trackDeleteEvent();
         toast.success("Event deleted!");
     };
 
@@ -137,6 +152,7 @@ export function TimelineApp() {
         setData(newData);
         saveToLocalStorage(newData);
         setIsImportModalOpen(false);
+        trackLinkedInImport(items.length);
         toast.success(`Imported ${items.length} events from LinkedIn!`);
     };
 
@@ -144,6 +160,7 @@ export function TimelineApp() {
         if (confirm("Are you sure you want to clear all timeline data?")) {
             setData([]);
             saveToLocalStorage([]);
+            trackClearAll();
             toast.success("Timeline cleared!");
         }
     };
@@ -155,6 +172,7 @@ export function TimelineApp() {
             saveColors(template.colorMap);
         }
         saveToLocalStorage(template.items);
+        trackLoadTemplate(template.name);
         toast.success(`Loaded template: ${template.name}`);
         setIsTemplateModalOpen(false);
     };
@@ -164,6 +182,7 @@ export function TimelineApp() {
         const url = `${window.location.origin}${window.location.pathname}?data=${encoded}`;
 
         navigator.clipboard.writeText(url);
+        trackShare();
         toast.success("Share link copied to clipboard!");
     };
 
@@ -189,6 +208,7 @@ export function TimelineApp() {
                 link.download = 'timeline-me-export.png';
                 link.href = dataUrl;
                 link.click();
+                trackExportImage();
                 toast.success("Image exported!");
             } catch (err) {
                 console.error(err);
@@ -228,6 +248,7 @@ export function TimelineApp() {
                             onClick={() => {
                                 setData(DEMO_DATA);
                                 saveToLocalStorage(DEMO_DATA);
+                                trackLoadDemo();
                                 toast.success("Demo timeline loaded!");
                             }}
                             variant="outline"
@@ -279,7 +300,7 @@ export function TimelineApp() {
                             <Button onClick={handleShare} variant="ghost" size="icon" title="Share URL" className="text-zinc-400 hover:text-zinc-700">
                                 <Share2 className="w-4 h-4" />
                             </Button>
-                            <Button onClick={() => setIsEmbedModalOpen(true)} variant="ghost" size="icon" title="Embed Timeline" className="text-zinc-400 hover:text-zinc-700">
+                            <Button onClick={() => { trackEmbed(); setIsEmbedModalOpen(true); }} variant="ghost" size="icon" title="Embed Timeline" className="text-zinc-400 hover:text-zinc-700">
                                 <Code className="w-4 h-4" />
                             </Button>
                             <Button onClick={handleScreenshot} variant="ghost" size="icon" title="Download Image" className="text-zinc-400 hover:text-zinc-700">
@@ -318,7 +339,7 @@ export function TimelineApp() {
                                     <DropdownMenuItem onClick={handleShare}>
                                         <Share2 className="w-4 h-4 mr-2" /> Share Link
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => setIsEmbedModalOpen(true)}>
+                                    <DropdownMenuItem onClick={() => { trackEmbed(); setIsEmbedModalOpen(true); }}>
                                         <Code className="w-4 h-4 mr-2" /> Embed Timeline
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={handleScreenshot}>

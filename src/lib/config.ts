@@ -17,7 +17,11 @@ export const siteConfig = {
         "react timeline",
         "cv visualization",
         "interactive resume"
-    ]
+    ],
+    analytics: {
+        /** Google Analytics 4 Measurement ID. Replace with your actual ID. */
+        gaId: "G-XXXXXXXXXX",
+    },
 };
 
 export type SiteConfig = typeof siteConfig;
