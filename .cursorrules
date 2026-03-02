@@ -1,0 +1,17 @@
+# Cursor Rules: timeline-me
+
+## Project Context
+- **Framework**: Next.js
+- **Project Structure**: Code resides mostly in `src/`. `legacy-angular/` contains old code and should be largely ignored unless explicitly required.
+- **Port**: Development runs on `http://localhost:3000`.
+
+## Operational Directives
+1. **Commits**: Strictly follow the Conventional Commits format (`feat(scope): message`, `fix(scope): message`, etc.). See `AI_AGENTS.md` for full details.
+2. **Visual Verification**: Do not guess if UI components work. If you generate or modify UI code, explicitly ask the user to verify visually, or use a browser-testing tool to check `http://localhost:3000` before concluding a task.
+3. **Documentation**:
+   - Technical decisions belong in `docs/architecture/`.
+   - General guidelines belong in `docs/guides/`.
+4. **Code Generation**: Ensure Next.js best practices (e.g., proper use of Client vs. Server components if using the App Router).
+
+## Environment
+Use `npm run dev` to start the server. Always check the terminal for build errors.

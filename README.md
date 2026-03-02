@@ -53,9 +53,26 @@ To configure GA4, update the Measurement ID in `src/lib/config.ts`.
 
 ## Documentation
 
-- [Growth & Analytics Plan](docs/GROWTH_PLAN.md)
-- [Analytics Implementation Guide](docs/ANALYTICS_IMPLEMENTATION.md)
+## Documentation
+
+- [Growth & Analytics Plan](docs/strategy/GROWTH_PLAN.md)
+- [Analytics Implementation Guide](docs/guides/ANALYTICS_IMPLEMENTATION.md)
+
+## Navigation
+
+This repository is structured to help both human developers and AI agents navigate its complexities. Please refer to the `docs/` folder for deeper context:
+
+- **[Architecture](docs/architecture/)**: Core technical documents, system design, and data models.
+- **[Guides](docs/guides/)**: Operational guides, contribution rules, and deployment procedures.
+- **[Strategy](docs/strategy/)**: High-level SEO, analytics, and growth strategies.
+- **[Research & Audits](docs/research/)**: Point-in-time reviews and experimental data.
+- **[AI Templates](docs/ai/)**: Custom prompts and templates for AI generation.
+
+For AI Agents, specific directives are outlined in [`AI_AGENTS.md`](AI_AGENTS.md), along with IDE-specific rules in `.cursorrules` and `.windsurfrules`. Procedural workflows can be found in `.agent/workflows/`.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
 ## License
 
 MIT
+

@@ -1,0 +1,14 @@
+# Windsurf Rules: timeline-me
+
+## Overview
+You are operating in `timeline-me`, a Next.js application.
+
+## Core Directives
+1. **Conventional Commits**: Every commit must adhere to the Conventional Commits standard (e.g., `feat(ui): add navbar`). See `AI_AGENTS.md` for conventions.
+2. **UI Verification Loop**: Any visual changes made to the application must be verified. Run `npm run dev` (runs on `http://localhost:3000`) and ensure the UI behaves as expected before finalizing changes.
+3. **Repository Map**:
+   - `src/`: Active Next.js codebase.
+   - `legacy-angular/`: Deprecated Angular code. Ignore unless migrating logic.
+   - `docs/`: Separated into `architecture/`, `guides/`, `strategy/`, and `research/`.
+   - `.agent/workflows/`: Check for automated procedure definitions.
+4. **Best Practices**: Rely heavily on Next.js documentation for routing and component structure. Avoid porting Angular paradigms into the Next.js codebase.
