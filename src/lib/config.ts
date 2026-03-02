@@ -20,7 +20,7 @@ export const siteConfig = {
     ],
     analytics: {
         /** Google Analytics 4 Measurement ID. Replace with your actual ID. */
-        gaId: "G-XXXXXXXXXX",
+        gaId: "G-XVHR9HK00D",
     },
 };
 
