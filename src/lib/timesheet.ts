@@ -50,29 +50,12 @@ export class Timesheet {
             dateObj.hasMonth = false;
         } else {
             const splittedDateInfo = dateInfo.split('/');
-            // Legacy logic: [0] is Month, [1] is Year.
-            // JS Date Month is 0-indexed.
-            const month = parseInt(splittedDateInfo[0], 10); // Expecting 0-11 if input is like legacy? 
-            // WAIT. If input is "MM/YYYY", typically users write "01/2020" for January.
-            // Legacy code: `parseInt(splittedDateInfo[0], 10)` passed as month.
-            // If legacy input was 1-based (e.g. 1 for Jan), then `new Date(Y, 1, ...)` is Feb.
-            // Let's assume input is 1-based "MM/YYYY".
-            // `new Date(year, month - 1, ...)` would be correct.
-            // BUT legacy code did: `new Date(..., parseInt(splittedDateInfo[0], 10), ...)` without -1?
-            // Or did it?
-            // Legacy: `new Date(parseInt(splittedDateInfo[1], 10), parseInt(splittedDateInfo[0], 10), -1, 1)`
-            // If user typed "01/2020", it did `new Date(2020, 1, -1)`. 
-            // 2020, Month 1 (Feb), Day -1. 
-            // Feb 1st minus 2 days? No, Day 1 is 1st. Day 0 is last of prev month. Day -1 is 2 days before end of prev month.
-            // So `new Date(2020, 1, -1)` -> Jan 30, 2020?
-            // This seems like a weird legacy quirk or bug.
-            // AND `hasMonth = true`.
-            // I will preserve the exact logic for now to ensure visual parity, assuming legacy "worked".
-
+            // Input format is "MM/YYYY" with 1-based month (e.g. "01/2020" = January 2020).
+            // JS Date constructor uses 0-based months, so subtract 1.
             const rawMonth = parseInt(splittedDateInfo[0], 10);
             const year = parseInt(splittedDateInfo[1], 10);
 
-            dateObj.date = new Date(year, rawMonth, -1, 1);
+            dateObj.date = new Date(year, rawMonth - 1, 1);
             dateObj.hasMonth = true;
         }
 
