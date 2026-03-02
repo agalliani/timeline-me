@@ -45,7 +45,7 @@ Keeping dead code creates confusion about what the application actually supports
 
 ## Acceptance Criteria
 
-- [ ] `src/lib/linkedin-adapter.ts` is deleted.
-- [ ] `npm run build` exits cleanly.
-- [ ] No remaining references to `parseLinkedInPositions` or `parseLinkedInEducation` in the codebase.
-- [ ] `docs/guides/LINKEDIN_IMPORT.md` exists.
+- [x] `src/lib/linkedin-adapter.ts` is deleted.
+- [x] `npm run build` exits cleanly.
+- [x] No remaining references to `parseLinkedInPositions` or `parseLinkedInEducation` in the codebase.
+- [x] `docs/guides/LINKEDIN_IMPORT.md` exists.

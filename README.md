@@ -57,6 +57,7 @@ To configure GA4, update the Measurement ID in `src/lib/config.ts`.
 
 - [Growth & Analytics Plan](docs/strategy/GROWTH_PLAN.md)
 - [Analytics Implementation Guide](docs/guides/ANALYTICS_IMPLEMENTATION.md)
+- [LinkedIn Import Guide](docs/guides/LINKEDIN_IMPORT.md)
 
 ## Navigation
 
