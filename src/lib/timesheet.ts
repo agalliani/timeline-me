@@ -1,4 +1,4 @@
-import { Bubble } from "./bubble";
+import { formatDateLabel } from "./bubble";
 import { TimelineItem, ParsedTimelineItem, BubbleModel, DateObj } from "@/types/timeline";
 
 export class Timesheet {
@@ -70,15 +70,6 @@ export class Timesheet {
         return years;
     }
 
-    getBubbles(widthMonth?: number): BubbleModel[] {
-        // ... legacy implementation wrapper or deprecation notice?
-        // Let's keep it for safety but recommend getGridBubbles
-        return this.getGridBubbles().map(b => ({
-            ...b,
-            marginLeft: 0, // No longer used in grid
-            width: 0       // No longer used in grid
-        }));
-    }
 
     getGridBubbles(): BubbleModel[] {
         const bubbles: BubbleModel[] = [];
@@ -131,18 +122,14 @@ export class Timesheet {
             // Safety
             if (durationMonths < 1) durationMonths = 1;
 
-            const bubble = new Bubble(0, this.year.min, cur.start, cur.end); // Just for helpers if needed
-
             bubbles.push({
-                marginLeft: 0,
-                width: 0,
                 gridColumnStart: startColumn,
                 gridColumnSpan: durationMonths,
                 class: 'bubble bubble-' + (cur.type || 'default'),
                 type: cur.type, // Added type/category to bubble model
                 description: cur.description,
                 duration: cur.end ? Math.round((cur.end.date.getTime() - cur.start.date.getTime()) / 1000 / 60 / 60 / 24 / 39).toString() : '',
-                dateLabel: bubble.getDateLabel(), // Reusing Bubble for formatting
+                dateLabel: formatDateLabel(cur.start, cur.end), // Using pure function for formatting
                 label: cur.label
             });
         }

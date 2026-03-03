@@ -20,8 +20,6 @@ export interface ParsedTimelineItem {
 }
 
 export interface BubbleModel {
-    marginLeft: number; // Legacy
-    width: number;      // Legacy
     type: string;
     class: string;
     duration: string;
