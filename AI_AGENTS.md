@@ -31,8 +31,11 @@ Format: `<type>(<scope>): <subject>`
 1. **Read this file** and the `docs/` hierarchy before starting work to understand the protocols.
    - For architecture, see `docs/architecture/`.
    - For standard procedures, see `.agent/workflows/`.
-2. **Visual Verification Loop (MANDATORY)**:
+2. **Run `npm test`** before committing to ensure no regressions.
+   - All tests must pass: `npm test` must exit with code 0.
+   - Tests are in `src/lib/__tests__/` and use Vitest.
+3. **Visual Verification Loop (MANDATORY)**:
    - Every frontend feature or refactor MUST be verified by running the application locally (`npm run dev`).
    - Capture visual proof (or use the browser subagent) to confirm the visual output matches expectations on `http://localhost:3000`.
    - Use this visual proof to close the feedback loop before committing.
-3. **Use atomic commits**: Commit often, but ensure each commit represents a logical unit of work.
+4. **Use atomic commits**: Commit often, but ensure each commit represents a logical unit of work.

@@ -41,7 +41,7 @@ When an agent completes a task, it should update the row in the table above with
 | 03 | ✅ Done | Removed legacy pixel layout code and refactored date label formatting into a pure function |
 | 04 | ✅ Done | Fixed package name, cleaned deps, updated lint script, added DEVELOPMENT guide |
 | 05 | ✅ Done | Integrated ThemeProvider, added ModeToggle, verified dark mode works |
-| 06 | ⏳ Open | |
-| 07 | ⏳ Open | |
-| 08 | ⏳ Open | |
-| 09 | ⏳ Open | |
+| 06 | ✅ Done | Replaced deprecated unescape/escape with modern UTF8-safe Base64; added schema validation and URL length warning |
+| 07 | ✅ Done | Added CookieBanner component with GA4 Consent Mode v2; updated GROWTH_PLAN.md and ANALYTICS_IMPLEMENTATION.md |
+| 08 | ✅ Done | Created OVERVIEW.md, DATA_MODEL.md, PDF_PARSING.md; expanded RENDERING_MODEL.md; updated README with doc links |
+| 09 | ✅ Done | Configured Vitest; 25 unit tests across timesheet, url-utils, bubble; CI workflow updated; AI_AGENTS.md and DEVELOPMENT.md updated |
