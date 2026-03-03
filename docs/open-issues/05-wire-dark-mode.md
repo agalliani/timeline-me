@@ -85,8 +85,8 @@ Confirm no TypeScript or build errors.
 
 ## Acceptance Criteria
 
-- [ ] `ThemeProvider` wraps the app in `layout.tsx`.
-- [ ] A theme toggle button is visible in the action bar.
-- [ ] Dark mode visually works (background, text, cards switch colors).
-- [ ] `npm run build` exits cleanly.
-- [ ] `README.md` dark mode feature is confirmed accurate.
+- [x] `ThemeProvider` wraps the app in `layout.tsx`.
+- [x] A theme toggle button is visible in the action bar.
+- [x] Dark mode visually works (background, text, cards switch colors).
+- [x] `npm run build` exits cleanly.
+- [x] `README.md` dark mode feature is confirmed accurate.

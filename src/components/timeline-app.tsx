@@ -12,6 +12,7 @@ import { ColorSettingsModal } from "@/components/color-settings-modal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Share2, Download, Trash2, Plus, Upload, Palette, LayoutList, Code } from "lucide-react";
+import { ModeToggle } from "@/components/mode-toggle";
 import { toast } from "sonner";
 
 import { EmbedModal } from "@/components/embed-modal";
@@ -302,6 +303,8 @@ export function TimelineApp() {
 
                             <div className="w-px h-6 bg-zinc-200 mx-1" />
 
+                            <ModeToggle />
+
                             <Button onClick={handleShare} variant="ghost" size="icon" title="Share URL" className="text-zinc-400 hover:text-zinc-700">
                                 <Share2 className="w-4 h-4" />
                             </Button>
@@ -321,6 +324,8 @@ export function TimelineApp() {
                             <Button onClick={handleAdd} size="sm" className="flex-1 bg-zinc-900 text-white shadow-sm hover:bg-zinc-800">
                                 <Plus className="w-4 h-4 mr-2" /> Add
                             </Button>
+
+                            <ModeToggle />
 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
