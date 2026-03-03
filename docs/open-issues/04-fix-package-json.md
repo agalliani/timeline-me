@@ -71,9 +71,9 @@ Confirm the build succeeds after all changes.
 
 ## Acceptance Criteria
 
-- [ ] `package.json` `name` field is `"timeline-me"`.
-- [ ] `html2canvas` removed if confirmed unused.
-- [ ] `radix-ui` top-level removed if confirmed unused.
-- [ ] `"lint": "next lint"` in scripts.
-- [ ] `npm run build` exits cleanly.
-- [ ] `docs/guides/DEVELOPMENT.md` created.
+- [x] `package.json` `name` field is `"timeline-me"`.
+- [x] `html2canvas` removed if confirmed unused.
+- [x] `radix-ui` top-level removed if confirmed unused.
+- [x] `"lint": "next lint"` in scripts.
+- [x] `npm run build` exits cleanly.
+- [x] `docs/guides/DEVELOPMENT.md` created.

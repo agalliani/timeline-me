@@ -80,8 +80,8 @@ The `getDateLabel()` logic in `Bubble` is simple and could be inlined or extract
 
 ## Acceptance Criteria
 
-- [ ] `getBubbles()` removed (or kept only if proven to be called externally).
-- [ ] `BubbleModel.marginLeft` and `BubbleModel.width` removed from the interface and all assignments.
-- [ ] No unnecessary `new Bubble(...)` instantiation in `getGridBubbles()`.
-- [ ] `npm run build` exits cleanly.
-- [ ] `docs/architecture/RENDERING_MODEL.md` created or updated.
+- [x] `getBubbles()` removed (or kept only if proven to be called externally).
+- [x] `BubbleModel.marginLeft` and `BubbleModel.width` removed from the interface and all assignments.
+- [x] No unnecessary `new Bubble(...)` instantiation in `getGridBubbles()`.
+- [x] `npm run build` exits cleanly.
+- [x] `docs/architecture/RENDERING_MODEL.md` created or updated.
