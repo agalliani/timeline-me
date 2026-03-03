@@ -124,4 +124,8 @@ Configure in GA4 Explore:
 - Data stays client-side (no server-side tracking)
 - GA4 data retention: Set to 14 months (configurable)
 - IP anonymization: Enabled by default in GA4
-- Cookie consent: Consider adding a consent banner for GDPR compliance (future)
+- **Cookie consent**: A GDPR-compliant consent banner (`src/components/cookie-banner.tsx`) is displayed on first visit:
+  - Users can **Accept** or **Decline** analytics tracking.
+  - The choice is persisted in `localStorage` under the key `cookie-consent`.
+  - GA4 is configured with **Consent Mode v2** (`analytics_storage: 'denied'` by default); consent is upgraded to `'granted'` only when the user accepts.
+  - The banner does not reappear once a choice is made. Users can revoke consent by clearing `localStorage`.

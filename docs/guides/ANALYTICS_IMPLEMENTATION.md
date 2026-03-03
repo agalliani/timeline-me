@@ -10,9 +10,10 @@ src/
 │   ├── analytics.ts        # Analytics utility module (event tracking, gtag wrapper)
 │   └── config.ts           # Site config including GA4 Measurement ID
 ├── components/
-│   └── google-analytics.tsx # GA4 script loader component
+│   ├── google-analytics.tsx # GA4 script loader + Consent Mode v2 initialization
+│   └── cookie-banner.tsx    # GDPR consent banner component
 └── app/
-    ├── layout.tsx           # Root layout (includes GoogleAnalytics component)
+    ├── layout.tsx           # Root layout (includes GoogleAnalytics, CookieBanner)
     ├── robots.ts            # robots.txt generator
     └── sitemap.ts           # sitemap.xml generator
 ```
