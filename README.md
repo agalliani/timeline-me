@@ -53,11 +53,15 @@ To configure GA4, update the Measurement ID in `src/lib/config.ts`.
 
 ## Documentation
 
-## Documentation
-
+- **[Architecture Overview](docs/architecture/OVERVIEW.md)**: High-level system map, component diagram, and data flow.
+- **[Data Model](docs/architecture/DATA_MODEL.md)**: Core TypeScript types and formats.
+- **[PDF Parsing](docs/architecture/PDF_PARSING.md)**: LinkedIn PDF parsing heuristic.
+- **[Rendering Model](docs/architecture/RENDERING_MODEL.md)**: Grid-based timeline rendering.
+- **[Date Pipeline](docs/architecture/DATE_PIPELINE.md)**: Date format pipeline from input string to grid column.
 - [Growth & Analytics Plan](docs/strategy/GROWTH_PLAN.md)
 - [Analytics Implementation Guide](docs/guides/ANALYTICS_IMPLEMENTATION.md)
 - [LinkedIn Import Guide](docs/guides/LINKEDIN_IMPORT.md)
+- [Development Guide](docs/guides/DEVELOPMENT.md)
 
 ## Navigation
 
