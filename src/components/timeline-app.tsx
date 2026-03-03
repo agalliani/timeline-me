@@ -182,6 +182,12 @@ export function TimelineApp() {
         const encoded = encodeTimelineData(data, colorMap);
         const url = `${window.location.origin}${window.location.pathname}?data=${encoded}`;
 
+        if (encoded.length > 6000) {
+            toast.warning(
+                "Share URL is very long and may not work in all environments. Consider exporting as image instead."
+            );
+        }
+
         navigator.clipboard.writeText(url);
         trackShare();
         toast.success("Share link copied to clipboard!");

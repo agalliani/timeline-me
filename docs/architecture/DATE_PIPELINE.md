@@ -17,11 +17,9 @@ A `null` / absent `end` means the item is ongoing (no end date).
 
 Both adapters produce strings in the canonical formats above:
 
-- **`src/lib/linkedin-adapter.ts` → `parseLinkedInDate()`**  
-  Converts `"MMM YYYY"` (e.g. `"Jan 2020"`) to `"01/2020"` (1-based month), and plain `"YYYY"` to `"YYYY"`.
-
 - **`src/lib/linkedin-pdf-adapter.ts` → `parseDate()`**  
-  Parses dates extracted from LinkedIn PDF exports and returns the same `"MM/YYYY"` or `"YYYY"` strings (1-based month).
+  Parses dates extracted from LinkedIn PDF exports and returns `"MM/YYYY"` or `"YYYY"` strings (1-based month).
+  This is the **only supported adapter** — the CSV-based adapter was removed as dead code (commit `c8e219d`).
 
 ## `Timesheet.parseDate()` — String → `DateObj`
 

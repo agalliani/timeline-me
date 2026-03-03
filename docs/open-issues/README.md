@@ -37,7 +37,7 @@ When an agent completes a task, it should update the row in the table above with
 | # | Status | Notes |
 |---|--------|-------|
 | 01 | ✅ Done | Fixed month parsing bug in Timesheet and added architecture doc |
-| 02 | ⏳ Open | |
+| 02 | ✅ Done | Removed dead CSV adapter (`linkedin-adapter.ts`), added LINKEDIN_IMPORT.md guide |
 | 03 | ✅ Done | Removed legacy pixel layout code and refactored date label formatting into a pure function |
 | 04 | ✅ Done | Fixed package name, cleaned deps, updated lint script, added DEVELOPMENT guide |
 | 05 | ✅ Done | Integrated ThemeProvider, added ModeToggle, verified dark mode works |
