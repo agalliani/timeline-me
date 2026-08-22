@@ -33,11 +33,10 @@ export default function Home() {
       <main className="container mx-auto max-w-5xl">
         <section className="mb-12 text-center space-y-4">
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">
-            Visualize Your Professional Journey with Timeline Me
+            Your Professional Timeline, Ready to Paste Into Your Portfolio
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            A chronological visualization for your career, projects, and achievements.
-            Explore the milestones that define your path.
+            Import from LinkedIn in 30 seconds, customize it, paste the embed on your site.
           </p>
         </section>
 

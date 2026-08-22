@@ -1,6 +1,6 @@
 export const siteConfig = {
     name: "Timeline Me",
-    description: "Visualize your professional journey in a stunning vertical timeline. Import from LinkedIn PDF or create manually. Privacy-focused, client-side only.",
+    description: "Your professional timeline, ready to paste into your portfolio. Import from LinkedIn in 30 seconds, customize it, paste the embed on your site.",
     url: "https://agalliani.github.io/timeline-me",
     ogImage: "https://agalliani.github.io/timeline-me/og.png",
     links: {
