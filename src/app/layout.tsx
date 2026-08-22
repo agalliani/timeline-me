@@ -28,11 +28,11 @@ export const metadata: Metadata = {
   keywords: siteConfig.keywords,
   authors: [
     {
-      name: "Andrea Galliani",
-      url: "https://github.com/agalliani",
+      name: siteConfig.author.name,
+      url: siteConfig.author.url,
     },
   ],
-  creator: "Andrea Galliani",
+  creator: siteConfig.author.name,
   openGraph: {
     type: "website",
     locale: "en_US",

@@ -3,6 +3,10 @@ export const siteConfig = {
     description: "Your professional timeline, ready to paste into your portfolio. Import from LinkedIn in 30 seconds, customize it, paste the embed on your site.",
     url: "https://agalliani.github.io/timeline-me",
     ogImage: "https://agalliani.github.io/timeline-me/og.png",
+    author: {
+        name: "Andrea Galliani",
+        url: "https://andreagalliani.com",
+    },
     links: {
         github: "https://github.com/agalliani/timeline-me",
         linkedin: "https://www.linkedin.com/in/andrea-galliani/",

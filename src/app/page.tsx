@@ -48,7 +48,17 @@ export default function Home() {
       <footer className="mt-20 text-center text-sm text-muted-foreground pb-8">
         <p>Built with Next.js, Tailwind, and Shadcn/UI.</p>
         <p className="mt-2">
-          Feedback? <a href="mailto:andrea.galliani.29@gmail.com" className="underline hover:text-foreground">Contact Me</a>
+          Made by{" "}
+          <a
+            href={siteConfig.author.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-foreground"
+          >
+            {siteConfig.author.name}
+          </a>
+          {" · "}
+          Feedback? <a href={siteConfig.links.mail} className="underline hover:text-foreground">Contact Me</a>
         </p>
       </footer>
     </div>
